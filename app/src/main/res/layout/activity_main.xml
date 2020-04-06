@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/route_plan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="路线规划"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/bmapView"
+        app:layout_constraintStart_toStartOf="@+id/bmapView" />
+
     <LinearLayout
         android:id="@+id/brief_introduction"
         android:layout_width="match_parent"
@@ -69,28 +79,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="详情" />
+                android:text="详情"
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/build_surround_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="周边" />
+                android:text="周边"
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/build_insert_into_route_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="添加路线" />
+                android:text="添加路线"
+                android:textSize="10dp" />
 
             <Button
                 android:id="@+id/build_guild_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="到这去" />
+                android:text="到这去"
+                android:textSize="10dp" />
         </LinearLayout>
 
     </LinearLayout>

@@ -14,7 +14,7 @@
             android:enabled="true"
             android:process=":remote"/>
 
-        <activity android:name=".navi.GuideActivity"
+        <activity android:name=".MainActivity"
             android:launchMode="standard">
             <meta-data
                 android:name="com.baidu.lbsapi.API_KEY"
@@ -36,6 +36,7 @@
         <activity android:name=".navi.DemoGuideActivity"/>
         <activity android:name=".navi.WNaviGuideActivity"/>
         <activity android:name=".navi.BNaviGuideActivity"/>
+        <activity android:name=".navi.GuideActivity"/>
 
 
         <meta-data

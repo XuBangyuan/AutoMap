@@ -205,7 +205,9 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
     @Override
     public void onBackPressed() {
         Log.d(KEY, "back pressed!");
-        setResult(RESULT_OK, result);
+        if(result != null) {
+            setResult(RESULT_OK, result);
+        }
         finish();
     }
 

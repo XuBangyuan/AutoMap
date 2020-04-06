@@ -58,10 +58,6 @@ public class GuideActivity extends AppCompatActivity implements OnGetGeoCoderRes
     BitmapDescriptor mCurrentMarker;
     public static final String MESSAGE_MAP="0x123";
 
-//    private String startCity=null;
-//    private String endCity=null;
-//    private String startLocation=null;
-//    private String endLocation=null;
     private EditText stCity;
     private EditText edCity;
     private EditText stPoi;
@@ -74,28 +70,14 @@ public class GuideActivity extends AppCompatActivity implements OnGetGeoCoderRes
         SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_guide);
 
-        //requestPermission();
-        //获取启动GuideActivity的Intent
-//        Intent intent = getIntent();
-        //取出数据
-//        map = intent.getStringArrayExtra(MESSAGE_MAP);
-       // startCity = map[0];
-       // startLocation = map[1];
-       // endCity = map[2];
-       // endLocation = map[3];
 
-        // Button button = (Button) findViewById(R.id.button);
-        // textView = (TextView) findViewById(R.id.latLng);
+        Intent intent = getIntent();
+        startPt = (LatLng) intent.getParcelableExtra("startNode");
+        endPt = (LatLng) intent.getParcelableExtra("endNode");
 
         myListener = new MyLocationListenner();
 
         mNaviHelper = BikeNavigateHelper.getInstance();
-        //LatLng startPt = new LatLng(PoiInfo);
-
-        //startPt = new LatLng(42.047788, 116.313261);
-        // endPt = new LatLng(42.056783, 116.308518);
-
-        //vehicle ：0:普通骑行导航 ； 1:电动车骑行导航。
 
         // 地图初始化
         mMapView = (MapView) findViewById(R.id.bmapView);
@@ -118,32 +100,18 @@ public class GuideActivity extends AppCompatActivity implements OnGetGeoCoderRes
         mSearch = GeoCoder.newInstance();
         mSearch.setOnGetGeoCodeResultListener(this);
 
-        stCity = (EditText) findViewById(R.id.city1);
-        stPoi = (EditText) findViewById(R.id.poi1);
-        stCity.setText(tmpCity);
-        stPoi.setText("我的位置");
-//        if("CURRENT_CITY"==map[0]){
-//            stCity.setText(tmpCity);
-//        }else{
-//            stCity.setText(map[0]);
-//        }
+//        stCity = (EditText) findViewById(R.id.city1);
+//        stPoi = (EditText) findViewById(R.id.poi1);
+//        stCity.setText(tmpCity);
+//        stPoi.setText("我的位置");
 
-//        if(("CURRENT_POI")==map[1]) {
-//            stPoi.setText("我的位置");
-//        }else{
-//            stPoi.setText(map[1]);
-//        }
+//        edCity = (EditText) findViewById(R.id.city2);
+//        edPoi = (EditText) findViewById(R.id.poi2);
+//        edCity.setText(tmpCity);
 
-        edCity = (EditText) findViewById(R.id.city2);
-        edPoi = (EditText) findViewById(R.id.poi2);
-        edCity.setText(tmpCity);
-//        if("CURRENT_CITY"==map[2]){
-//            edCity.setText(tmpCity);
-//        }else {
-//            edCity.setText(map[2]);
-//        }
+//        edPoi.setText("");
 
-        edPoi.setText("");
+        startBikeNavi();
     }
     @Override
     public void onStart() {
@@ -171,24 +139,10 @@ public class GuideActivity extends AppCompatActivity implements OnGetGeoCoderRes
 
             }else{
                 btnText=1;
-                // 地理位置搜索起点位置
-                //city(edCity.getText().toString())可以不写，GeoCodeOption共有两个方法，一个是查询城市，一个是查询地址；
-                //但是address（）方法必须写
-                // mBotton=""
+
                 mSearch.geocode(new GeoCodeOption().city(
                         stCity.getText().toString()).address(stPoi.getText().toString()));
             }
-
-
-            //根据经纬度查询地址  反地理编码
-//            EditText lat = (EditText) findViewById(R.id.lat);
-//            EditText lon = (EditText) findViewById(R.id.lon);st
-//            //获取填写的经纬度
-//            LatLng ptCenter = new LatLng((Float.valueOf(lat.getText()
-//                    .toString())), (Float.valueOf(lon.getText().toString())));
-            // 反地理编码搜索
-//            mSearch.reverseGeoCode(new ReverseGeoCodeOption()
-//                    .location(ptCenter));
 
         } else if (v.getId() == R.id.search_end) {
             //根据地理位置

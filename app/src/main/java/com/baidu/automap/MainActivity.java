@@ -71,17 +71,19 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     private Button searchButton = null;
     private Button goBackButton = null;
 
-    private LinearLayout bried_introduction_linear = null;
-    private TextView build_name_text = null;
-    private LinearLayout loc_info_linear = null;
-    private TextView build_to_me_dis_text = null;
-    private TextView loc_description_text = null;
-    private TextView open_time_text = null;
-    private LinearLayout browse_button_linear = null;
-    private Button build_detail_button = null;
-    private Button build_surround_button = null;
-    private Button build_insert_into_route_button = null;
-    private Button build_guild_button = null;
+    private LinearLayout briedIntroductionLinear = null;
+    private TextView buildNameText = null;
+    private LinearLayout locInfoLinear = null;
+    private TextView buildToMeDisText = null;
+    private TextView locDescriptionText = null;
+    private TextView openTimeText = null;
+    private LinearLayout browseButtonLinear = null;
+    private Button buildDetailButton = null;
+    private Button buildSurroundButton = null;
+    private Button buildInsertIntoRouteButton = null;
+    private Button buildGuildButton = null;
+    //路线规划按钮
+    private Button routePlanButton = null;
 
     //poi_sug搜索
     private static final int POI_SUG = 1;
@@ -140,24 +142,25 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         searchButton = (Button) findViewById(R.id.search_button);
         goBackButton = (Button) findViewById(R.id.go_back_button);
 
-        bried_introduction_linear = (LinearLayout) findViewById(R.id.brief_introduction);
-        build_name_text = (TextView) findViewById(R.id.build_name);
-        build_to_me_dis_text = (TextView) findViewById(R.id.build_to_me_distance);
-        loc_description_text = (TextView) findViewById(R.id.loc_description);
-        open_time_text = (TextView) findViewById(R.id.open_time);
-        build_detail_button = (Button) findViewById(R.id.build_detail_button);
-        build_surround_button = (Button) findViewById(R.id.build_surround_button);
-        build_insert_into_route_button = (Button) findViewById(R.id.build_insert_into_route_button);
-        build_guild_button = (Button) findViewById(R.id.build_guild_button);
+        briedIntroductionLinear = (LinearLayout) findViewById(R.id.brief_introduction);
+        buildNameText = (TextView) findViewById(R.id.build_name);
+        buildToMeDisText = (TextView) findViewById(R.id.build_to_me_distance);
+        locDescriptionText = (TextView) findViewById(R.id.loc_description);
+        openTimeText = (TextView) findViewById(R.id.open_time);
+        buildDetailButton = (Button) findViewById(R.id.build_detail_button);
+        buildSurroundButton = (Button) findViewById(R.id.build_surround_button);
+        buildInsertIntoRouteButton = (Button) findViewById(R.id.build_insert_into_route_button);
+        buildGuildButton = (Button) findViewById(R.id.build_guild_button);
+        routePlanButton = (Button) findViewById(R.id.route_plan);
 
         // 创建poi检索实例，注册搜索事件监听
         mPoiSearch = PoiSearch.newInstance();
         mPoiSearch.setOnGetPoiSearchResultListener(this);
 
-//        bried_introduction_linear.setZ(0.f);
-        bried_introduction_linear.setVisibility(View.GONE);
+//        briedIntroductionLinear.setZ(0.f);
+        briedIntroductionLinear.setVisibility(View.GONE);
         line.setZ(4.f);
-        bried_introduction_linear.setZ(5.f);
+        briedIntroductionLinear.setZ(5.f);
 
         //注册广播
         IntentFilter iFilter = new IntentFilter();
@@ -176,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             public boolean onMarkerClick(Marker marker) {
                 Log.d(KEY, "marker onclick begin");
                 ResultEntity result = (ResultEntity) marker.getExtraInfo().getSerializable("result");
-                isBack = true;
+//                isBack = true;
                 Log.d(KEY, "marker onClick" + result.getuId());
                 searchButtonProcess(result.getuId());
                 return true;
@@ -200,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         });
 
         //poi导航按钮点击
-        build_guild_button.setOnClickListener(new View.OnClickListener() {
+        buildGuildButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(KEY, "build_guild_button onclick");
@@ -275,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
      * 页面重置
      */
     private void clearPage() {
-        bried_introduction_linear.setVisibility(View.GONE);
+        briedIntroductionLinear.setVisibility(View.GONE);
     }
 
     /**
@@ -347,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     }
 
     /**
-     *  在地图下方介绍框中中展示 Detail 相关信息
+     *  在地图下方介绍框中展示 Detail 相关信息
      *
      * @param poiDetailInfo poi详情信息
      */
@@ -361,14 +364,16 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         LatLng myLoc = new LatLng(curLocation.getLatitude(), curLocation.getLongitude());
         double dis = DistanceUtil. getDistance(build, myLoc);
 
-        build_name_text.setText(poiDetailInfo.getName());
-        build_to_me_dis_text.setText(decimalFormat.format(dis) + "m");
-        loc_description_text.setText(poiDetailInfo.getAddress());
-        open_time_text.setText(poiDetailInfo.getShopHours());
+        buildNameText.setText(poiDetailInfo.getName());
+        buildToMeDisText.setText(decimalFormat.format(dis) + "m");
+        locDescriptionText.setText(poiDetailInfo.getAddress());
+        openTimeText.setText(poiDetailInfo.getShopHours());
 
         endNode = build;
 
-        bried_introduction_linear.setVisibility(View.VISIBLE);
+        isBack = true;
+        briedIntroductionLinear.setVisibility(View.VISIBLE);
+        routePlanButton.setVisibility(View.GONE);
     }
 
 
@@ -386,7 +391,9 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         Log.d(KEY, "back pressed!");
 
         if (isBack) {
-            bried_introduction_linear.setZ(0.f);
+//            briedIntroductionLinear.setZ(0.f);
+            briedIntroductionLinear.setVisibility(View.GONE);
+            routePlanButton.setVisibility(View.VISIBLE);
             isBack = false;
             return;
         }
