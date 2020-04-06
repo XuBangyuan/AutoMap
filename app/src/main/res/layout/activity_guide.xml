@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rel"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="90dp">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/lin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/city1"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:hint="城市"
+                    android:text="" />
+
+                <EditText
+                    android:id="@+id/poi1"
+                    android:layout_width="170dp"
+                    android:layout_height="wrap_content"
+                    android:hint="具体位置"
+                    android:text="" />
+                <!--点击事件写在了布局里边  android:onClick="searchButtonProcess"  点击事件的方法-->
+                <Button
+                    android:id="@+id/search_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:onClick="searchButtonProcess"
+                    android:text="查起点" />
+
+
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/city2"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:hint="城市"
+                    android:text="" />
+
+                <EditText
+                    android:id="@+id/poi2"
+                    android:layout_width="170dp"
+                    android:layout_height="wrap_content"
+                    android:hint="具体位置"
+                    android:text="" />
+                <!--点击事件写在了布局里边  android:onClick="searchButtonProcess"  点击事件的方法-->
+                <Button
+                    android:id="@+id/search_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="searchButtonProcess"
+                    android:text="查终点" />
+            </LinearLayout>
+        </LinearLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="95dp"
+            android:text="骑行导航"
+            android:layout_toRightOf="@+id/lin"
+
+
+            android:onClick="searchButtonProcess"
+            android:id="@+id/button"
+            />
+
+    </RelativeLayout>
+
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true" />
+
+</LinearLayout>

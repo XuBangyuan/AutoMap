@@ -14,7 +14,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+
 import com.baidu.automap.R;
+import com.baidu.automap.navi.BNaviGuideActivity;
+import com.baidu.automap.navi.DemoGuideActivity;
+import com.baidu.automap.navi.DemoNaviActivity;
+import com.baidu.automap.navi.WNaviGuideActivity;
 import com.baidu.automap.overlayUtil.WalkingRouteOverlay;
 import com.baidu.automap.search.OverlayManager;
 import com.baidu.mapapi.map.BaiduMap;
@@ -35,6 +40,10 @@ import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.TransitRouteResult;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import com.baidu.mapapi.search.route.WalkingRouteResult;
+import com.baidu.mapapi.walknavi.WalkNavigateHelper;
+import com.baidu.mapapi.walknavi.adapter.IWEngineInitListener;
+import com.baidu.mapapi.walknavi.adapter.IWRoutePlanListener;
+import com.baidu.mapapi.walknavi.model.WalkRoutePlanError;
 import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam;
 
 /**
@@ -68,6 +77,7 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
 
     private static final String KEY = "WalkingRouteSearch";
     private WalkNaviLaunchParam mParam;
+    private WalkNavigateHelper mNaviHelper;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,21 +111,31 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
         mSearch.setOnGetRoutePlanResultListener(this);
         mNodeUtils = new NodeUtils(this,  mBaidumap);
 
-//        // 获取导航控制类
-//        // 引擎初始化
-//        WalkNavigateHelper.getInstance().initNaviEngine(this, new IWEngineInitListener() {
-//
-//            @Override
-//            public void engineInitSuccess() {
-//                //引擎初始化成功的回调
-//                routeWalkPlanWithParam();
-//            }
-//
-//            @Override
-//            public void engineInitFail() {
-//                //引擎初始化失败的回调
-//            }
-//        });
+//        //获取WalkNavigateHelper实例
+//        mNaviHelper = WalkNavigateHelper.getInstance();
+//        //获取诱导页面地图展示View
+//        View view = mNaviHelper.onCreate(WalkingRouteSearchDemo.this);
+//        if (view != null) {
+//            setContentView(view);
+//        }
+
+        // 获取导航控制类
+        // 引擎初始化
+        WalkNavigateHelper.getInstance().initNaviEngine(this, new IWEngineInitListener() {
+
+            @Override
+            public void engineInitSuccess() {
+                //引擎初始化成功的回调
+                Log.d(KEY, "engineInitSuccess");
+                routeWalkPlanWithParam();
+            }
+
+            @Override
+            public void engineInitFail() {
+                //引擎初始化失败的回调
+                Log.d(KEY, "engineInitFail");
+            }
+        });
 
         PlanNode startNode = PlanNode.withLocation(startLoc);
         PlanNode endNode = PlanNode.withLocation(endLoc);
@@ -128,36 +148,37 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
         //searchButtonProcess();
     }
 
-//    /**
-//     * 开始路线导航
-//     */
-//    private void routeWalkPlanWithParam() {
-//        //构造WalkNaviLaunchParam
-//        mParam = new WalkNaviLaunchParam().stPt(startLoc).endPt(endLoc);
-//
-//        //发起算路
-//        WalkNavigateHelper.getInstance().routePlanWithParams(mParam, new IWRoutePlanListener() {
-//            @Override
-//            public void onRoutePlanStart() {
-//                //开始算路的回调
-//            }
-//
-//            @Override
-//            public void onRoutePlanSuccess() {
-//                //算路成功
-//                //跳转至诱导页面
-//                Intent intent = new Intent(this, WNaviGuideActivity.class);
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onRoutePlanFail(WalkRoutePlanError walkRoutePlanError) {
-//                //算路失败的回调
-//            }
-//        });
-//
-//
-//    }
+    /**
+     * 开始路线导航
+     */
+    private void routeWalkPlanWithParam() {
+        //构造WalkNaviLaunchParam
+        mParam = new WalkNaviLaunchParam().stPt(startLoc).endPt(endLoc);
+
+        //发起算路
+        WalkNavigateHelper.getInstance().routePlanWithParams(mParam, new IWRoutePlanListener() {
+            @Override
+            public void onRoutePlanStart() {
+                //开始算路的回调
+            }
+
+            @Override
+            public void onRoutePlanSuccess() {
+                //算路成功
+                //跳转至诱导页面
+                Log.d(KEY, "onRoutePlanSuccess");
+                Intent intent = new Intent(WalkingRouteSearchDemo.this, BNaviGuideActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onRoutePlanFail(WalkRoutePlanError walkRoutePlanError) {
+                //算路失败的回调
+            }
+        });
+
+
+    }
 
 
 

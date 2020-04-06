@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.multidex.MultiDex;
 
 import com.baidu.automap.search.PoiSugSearchDemo;
 import com.baidu.automap.search.ResultEntity;
@@ -112,6 +113,12 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 Log.d(KEY, "验证成功");
             }
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
 
@@ -236,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             @Override
             public void onMapPoiClick(MapPoi mapPoi) {
                 Log.d(KEY, "onMapPoiClick " + mapPoi.getName());
+                Log.d(KEY, mapPoi.getPosition().latitude + " , " + mapPoi.getPosition().longitude);
                 mPoiSearch.searchPoiDetail(new PoiDetailSearchOption().poiUids(mapPoi.getUid()));
             }
         };

@@ -1,5 +1,6 @@
 package com.baidu.automap.search;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.multidex.MultiDex;
 
 import com.baidu.automap.R;
 import com.baidu.mapapi.map.BaiduMap;
@@ -131,6 +133,12 @@ public class PoiDetailSearchDemo extends AppCompatActivity implements OnGetPoiSe
                 }
             }
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     @Override

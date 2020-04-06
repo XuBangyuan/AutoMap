@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -17,6 +19,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    dexOptions{
+        preDexLibraries = false
+    }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDir 'libs'
+        }
+    }
+
 }
 
 dependencies {
@@ -28,4 +47,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation files('libs/BaiduLBSAndroid.jar')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    implementation (name: 'onsdk_all', ext:'aar')
+    implementation (name: 'NaviTts', ext:'aar')//如果没用内置导航tts，就把这个注释掉
+    implementation 'com.android.support:multidex:1.0.3'
 }
