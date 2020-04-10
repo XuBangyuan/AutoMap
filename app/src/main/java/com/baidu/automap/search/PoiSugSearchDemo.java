@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.baidu.automap.R;
+import com.baidu.automap.entity.ResultEntity;
 import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
 import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
@@ -42,7 +42,6 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
     // 搜索关键字输入窗口
     private EditText mEditCity = null;
     private AutoCompleteTextView mKeyWordsView = null;
-    private ListView mSugListView;
     private List<ResultEntity> resultList;
     private Intent result;
 
@@ -70,7 +69,6 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
         String city = bundle.getString("city");
         mEditCity.setText(city);
 
-        mSugListView = (ListView) findViewById(R.id.sug_list);
         mResultRecyclerView = (RecyclerView) findViewById(R.id.sug_recycler_list);
 
         mResultRecyclerView.setLayoutManager(new LinearLayoutManager(PoiSugSearchDemo.this));
@@ -197,10 +195,6 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
 
     }
 
-    private void setPoiResult(Intent result) {
-        setResult(RESULT_OK, result);
-        finish();
-    }
 
     @Override
     public void onBackPressed() {

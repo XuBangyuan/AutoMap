@@ -23,7 +23,7 @@
             android:layout_marginStart="0dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
-            android:text="Button" />
+            android:text="开始导航" />
 
         <com.baidu.mapapi.map.MapView
             android:id="@+id/map"

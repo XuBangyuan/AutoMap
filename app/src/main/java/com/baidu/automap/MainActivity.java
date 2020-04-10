@@ -18,7 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.multidex.MultiDex;
 
 import com.baidu.automap.search.PoiSugSearchDemo;
-import com.baidu.automap.search.ResultEntity;
+import com.baidu.automap.entity.ResultEntity;
+import com.baidu.automap.searchroute.RoutePlanActivity;
 import com.baidu.automap.searchroute.WalkingRouteSearchDemo;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -87,10 +88,22 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
 
     //poi_sug搜索
     private static final int POI_SUG = 1;
+    //RoutePlanActivity
+    private static final int ROUTE_PLAN = 2;
+
+
+
     //步行导航
     private static final int WALKING_ROUTE = 2;
     private static final int POI_SUG_SINGLE = 1;
     private static final int POI_SUG_LIST = 2;
+
+    //RoutePlanActivity识别码
+    private static final int CALL_FOR_ADD = 1;
+    private static final int CALL_FOR_ROUTE = 2;
+
+    //RoutePlanActivity,bundle取出key
+    private static final String CALL_FOR_ROUTE_PLAN_ACTIVITY = "CALL_FOR_ROUTE_PLAN_ACTIVITY";
 
     //当前定位地点
     private BDLocation curLocation = null;
@@ -152,6 +165,30 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         buildInsertIntoRouteButton = (Button) findViewById(R.id.build_insert_into_route_button);
         buildGuildButton = (Button) findViewById(R.id.build_guild_button);
         routePlanButton = (Button) findViewById(R.id.route_plan);
+
+        //路线规划按钮点击
+        routePlanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RoutePlanActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt(CALL_FOR_ROUTE_PLAN_ACTIVITY, CALL_FOR_ROUTE);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, ROUTE_PLAN);
+            }
+        });
+
+        //加入路线按钮点击
+        buildInsertIntoRouteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, RoutePlanActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt(CALL_FOR_ROUTE_PLAN_ACTIVITY, CALL_FOR_ADD);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, ROUTE_PLAN);
+            }
+        });
 
         // 创建poi检索实例，注册搜索事件监听
         mPoiSearch = PoiSearch.newInstance();
@@ -363,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         LatLng build = new LatLng(poiDetailInfo.getLocation().latitude, poiDetailInfo.getLocation().longitude);
         LatLng myLoc = new LatLng(curLocation.getLatitude(), curLocation.getLongitude());
         double dis = DistanceUtil. getDistance(build, myLoc);
+
 
         buildNameText.setText(poiDetailInfo.getName());
         buildToMeDisText.setText(decimalFormat.format(dis) + "m");

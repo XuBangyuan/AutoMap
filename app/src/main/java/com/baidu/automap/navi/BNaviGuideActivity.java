@@ -15,6 +15,7 @@ import com.baidu.mapapi.bikenavi.adapter.IBTTSPlayer;
 import com.baidu.mapapi.bikenavi.model.BikeRouteDetailInfo;
 import com.baidu.mapapi.bikenavi.model.RouteGuideKind;
 import com.baidu.mapapi.bikenavi.params.BikeNaviLaunchParam;
+import com.baidu.navisdk.adapter.IBNRouteGuideManager;
 
 public class BNaviGuideActivity extends Activity {
 
@@ -22,18 +23,28 @@ public class BNaviGuideActivity extends Activity {
 
     BikeNaviLaunchParam param;
 
+    private static String KEY = "bNaviGuideActivity";
+
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mNaviHelper.quit();
+        super.onDestroy();
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
         mNaviHelper.resume();
+        super.onResume();
     }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(KEY, "back pressed!");
+        setResult(RESULT_OK, null);
+        finish();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,11 +88,6 @@ public class BNaviGuideActivity extends Activity {
             public void onRouteGuideKind(com.baidu.mapapi.walknavi.model.RouteGuideKind routeGuideKind) {
 
             }
-
-//            @Override
-//            public void onRouteGuideKind(RouteGuideKind routeGuideKind) {
-//
-//            }
 
             @Override
             public void onRoadGuideTextUpdate(CharSequence charSequence, CharSequence charSequence1) {

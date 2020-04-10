@@ -37,6 +37,8 @@
         <activity android:name=".navi.WNaviGuideActivity"/>
         <activity android:name=".navi.BNaviGuideActivity"/>
         <activity android:name=".navi.GuideActivity"/>
+        <activity android:name=".searchroute.RoutePlanActivity"/>
+        <activity android:name=".searchroute.SelectRoutePlanActivity"/>
 
 
         <meta-data

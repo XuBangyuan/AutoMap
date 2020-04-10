@@ -81,8 +81,7 @@
 
 
             android:onClick="searchButtonProcess"
-            android:id="@+id/button"
-            />
+            android:id="@+id/button"/>
 
     </RelativeLayout>
 

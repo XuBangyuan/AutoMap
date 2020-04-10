@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baidu.automap.MainActivity;
 import com.baidu.automap.R;
+import com.baidu.automap.entity.ResultEntity;
+import com.baidu.automap.entity.RoutePlanNode;
 import com.baidu.automap.navi.BNaviGuideActivity;
 import com.baidu.automap.navi.DemoGuideActivity;
 import com.baidu.automap.navi.DemoNaviActivity;
@@ -83,6 +85,8 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
 
     BikeNaviLaunchParam param;
     private BikeNavigateHelper mNaviHelper;
+
+    private static final int BIKE_GUIDE_ACTIVITY = 1;
 
 
     //导航起点
@@ -249,7 +253,7 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
                 Log.d("View", "onRoutePlanSuccess");
                 Intent intent = new Intent();
                 intent.setClass(WalkingRouteSearchDemo.this, BNaviGuideActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, BIKE_GUIDE_ACTIVITY);
             }
 
             @Override
@@ -258,6 +262,18 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
             }
 
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(KEY, "request : " + requestCode + " result : " + resultCode);
+        if(RESULT_OK == resultCode) {
+                if(BIKE_GUIDE_ACTIVITY == requestCode) {
+                Log.d(KEY, "finish bikeNavi");
+                finish();
+            }
+        }
     }
 
 

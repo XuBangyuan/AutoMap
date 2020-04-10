@@ -1,4 +1,4 @@
-package com.baidu.automap.search;
+package com.baidu.automap.entity;
 
 import java.io.Serializable;
 
