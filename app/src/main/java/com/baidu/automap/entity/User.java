@@ -7,25 +7,29 @@ public class User {
 
     private String phone;
 
-    private String name;
 
     private String password;
 
+    public void setUser(User user) {
+        this.setUserId(user.getUserId());
+        this.setPhone(user.getPhone());
+        this.setPassword(user.getPassword());
+    }
+
     @Override
     public String toString() {
-        return "UserInfo{" +
+        return "User{" +
                 "userId=" + userId +
                 ", phone='" + phone + '\'' +
-                ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
                 '}';
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -37,14 +41,6 @@ public class User {
         this.phone = phone;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -53,3 +49,4 @@ public class User {
         this.password = password;
     }
 }
+

@@ -91,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     //RoutePlanActivity
     private static final int ROUTE_PLAN = 2;
 
-
+    //当前用户userId
+    private Integer userId;
 
     //步行导航
     private static final int WALKING_ROUTE = 2;
@@ -149,6 +150,13 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         mMapView = (MapView) findViewById(R.id.bmapView);
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMyLocationEnabled(true);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        userId = bundle.getInt("userId");
+        if(userId != null) {
+            Log.d(KEY, "get userId : " + userId);
+        }
 
 
         line = (LinearLayout) findViewById(R.id.line);

@@ -11,7 +11,7 @@
         android:id="@+id/login_guide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="150dp"
         android:text="注册"
         android:textSize="35dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,8 +42,7 @@
             android:id="@+id/user_id"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="手机号或邮箱"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/black" />
     </LinearLayout>
 
     <LinearLayout
@@ -69,8 +68,7 @@
             android:id="@+id/user_password"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="密码"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/black" />
     </LinearLayout>
 
     <LinearLayout
@@ -96,8 +94,17 @@
             android:id="@+id/user_password_verify"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="确认密码"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/black" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:text="确认注册"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

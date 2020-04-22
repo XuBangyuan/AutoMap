@@ -33,6 +33,7 @@
             android:launchMode="standard"/>
         <activity android:name=".search.PoiSugSearchDemo"
             android:launchMode="standard"/>
+        <activity android:name=".MainActivity"/>
         <activity android:name=".navi.DemoNaviActivity"/>
         <activity android:name=".navi.DemoGuideActivity"/>
         <activity android:name=".navi.WNaviGuideActivity"/>
@@ -40,6 +41,7 @@
         <activity android:name=".navi.GuideActivity"/>
         <activity android:name=".searchroute.RoutePlanActivity"/>
         <activity android:name=".searchroute.SelectRoutePlanActivity"/>
+        <activity android:name=".user.LoginActivity"/>
 
 
         <meta-data
