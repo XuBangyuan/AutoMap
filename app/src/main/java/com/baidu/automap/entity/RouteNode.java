@@ -1,20 +1,38 @@
 package com.baidu.automap.entity;
 
-
 public class RouteNode {
+
+    private Integer nodeId;
 
     private Integer routeId;
 
     private String desId;
 
-    private String name;
+    private String desName;
 
     private Double latitude;
 
-    private Double longtitude;
+    private Double longitude;
+
+    public void setRouteNode(RouteNode node) {
+        this.nodeId = node.getNodeId();
+        this.routeId = node.getRouteId();
+        this.desId = node.getDesId();
+        this.desName = node.getDesName();
+        this.latitude = node.getLatitude();
+        this.longitude = node.getlongitude();
+    }
 
     public Integer getRouteId() {
         return routeId;
+    }
+
+    public Integer getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(Integer nodeId) {
+        this.nodeId = nodeId;
     }
 
     public void setRouteId(Integer routeId) {
@@ -29,13 +47,6 @@ public class RouteNode {
         this.desId = desId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public Double getLatitude() {
         return latitude;
@@ -45,22 +56,31 @@ public class RouteNode {
         this.latitude = latitude;
     }
 
-    public Double getLongtitude() {
-        return longtitude;
+    public Double getlongitude() {
+        return longitude;
     }
 
-    public void setLongtitude(Double longtitude) {
-        this.longtitude = longtitude;
+    public void setlongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getDesName() {
+        return desName;
+    }
+
+    public void setDesName(String desName) {
+        this.desName = desName;
     }
 
     @Override
     public String toString() {
         return "RouteNode{" +
-                "routeId=" + routeId +
+                "nodeId=" + nodeId +
+                ", routeId=" + routeId +
                 ", desId='" + desId + '\'' +
-                ", name='" + name + '\'' +
+                ", desName='" + desName + '\'' +
                 ", latitude=" + latitude +
-                ", longtitude=" + longtitude +
+                ", longitude=" + longitude +
                 '}';
     }
 }

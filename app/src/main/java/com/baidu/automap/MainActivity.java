@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 Intent intent = new Intent(MainActivity.this, RoutePlanActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putInt(CALL_FOR_ROUTE_PLAN_ACTIVITY, CALL_FOR_ROUTE);
+                bundle.putInt("userId", userId);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, ROUTE_PLAN);
             }

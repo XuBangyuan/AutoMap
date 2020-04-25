@@ -20,40 +20,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/cur_route_linear"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/create_route_plan">
-
-        <TextView
-            android:id="@+id/cur_route_name"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="当前路线" />
-
-        <TextView
-            android:id="@+id/cur_route_detail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="#223B6CFF"
-            android:gravity="center"
-            android:text="随州一中 --> 随州博物馆 --> 大润发" />
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/all_route_linear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/cur_route_linear">
+        app:layout_constraintTop_toBottomOf="@+id/create_route_plan">
 
         <TextView
             android:id="@+id/all_route_plan"

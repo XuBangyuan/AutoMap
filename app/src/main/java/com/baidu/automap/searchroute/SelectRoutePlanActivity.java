@@ -7,24 +7,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.multidex.MultiDex;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.baidu.automap.MainActivity;
 import com.baidu.automap.R;
 import com.baidu.automap.entity.ResultEntity;
+import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.RoutePlanList;
 import com.baidu.automap.entity.RoutePlanNode;
+import com.baidu.automap.entity.UserRoute;
+import com.baidu.automap.entity.response.RouteNodeResponse;
 import com.baidu.automap.navi.BNaviGuideActivity;
 import com.baidu.automap.search.PoiSugSearchDemo;
+import com.baidu.automap.util.HttpUtil;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.bikenavi.BikeNavigateHelper;
 import com.baidu.mapapi.bikenavi.adapter.IBEngineInitListener;
@@ -33,6 +34,9 @@ import com.baidu.mapapi.bikenavi.model.BikeRoutePlanError;
 import com.baidu.mapapi.bikenavi.params.BikeNaviLaunchParam;
 import com.baidu.mapapi.bikenavi.params.BikeRouteNodeInfo;
 import com.baidu.mapapi.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +61,9 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     private LatLng endLoc;
     private LatLng curLoc;
     private static final String KEY = "selectRoutePlanActivity";
+
+    private int curRouteId;
+    private RouteNodeResponse curNodeResponse;
 
     private RoutePlanList curRouteList;
 
@@ -98,21 +105,25 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        curRouteList = (RoutePlanList) bundle.getParcelable("route_list");
-        list = curRouteList.getList();
+        curRouteId = bundle.getInt("routeId");
+        Log.d(KEY, "routeId : " + curRouteId);
+
+        curNodeResponse = new RouteNodeResponse();
 
         addNode = (Button) findViewById(R.id.add_node);
         beginGuide = (Button) findViewById(R.id.begin_guide);
-
-        node_list_view = (RecyclerView) findViewById(R.id.select_all_node);
-        node_list_view.setLayoutManager(new LinearLayoutManager(this));
-        refresh();
 
         mNaviHelper = BikeNavigateHelper.getInstance();
 
         isInit = false;
         isInitSuccess = false;
         initBikeNavi();
+
+        node_list_view = (RecyclerView) findViewById(R.id.select_all_node);
+        node_list_view.setLayoutManager(new LinearLayoutManager(this));
+        updateRouteNode();
+
+
 
         //新增节点
         addNode.setOnClickListener(new View.OnClickListener() {
@@ -159,6 +170,211 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
     }
 
+    private void addRouteNode(RouteNode routeNode) {
+        ThreadAddRouteNode thread = new ThreadAddRouteNode(routeNode);
+        thread.start();
+
+        try {
+            thread.join();
+
+            if(thread.getIsSuccess()) {
+                updateRouteNode();
+            }
+        } catch (InterruptedException e) {
+            Log.d(KEY, e.toString());
+        }
+    }
+
+    private class ThreadAddRouteNode extends Thread {
+
+        private boolean isSuccess = false;
+
+        private String message;
+
+        private RouteNode mRouteNode;
+
+        public ThreadAddRouteNode(RouteNode routeNode) {
+            this.mRouteNode = routeNode;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                byte[] data = HttpUtil.readRouteParse("addRouteNode", null, mRouteNode);
+                String str = new String(data);
+                JSONObject jsonObject = new JSONObject(str);
+
+                RouteNodeResponse routeNodeResponse = new RouteNodeResponse();
+                routeNodeResponse.setMessage(jsonObject.getString("message"));
+                if(routeNodeResponse != null && routeNodeResponse.getMessage().compareTo("success!") == 0) {
+                    Log.d(KEY, "addRouteNode" + " get data from server success!");
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                    message = routeNodeResponse.getMessage();
+                    Log.d(KEY, routeNodeResponse.getMessage());
+                }
+                Log.d(KEY, str);
+            } catch (Exception e) {
+                Log.e(KEY, e.toString());
+            }
+        }
+
+    }
+
+    private void deleteNode(RouteNode routeNode) {
+        ThreadDeleteRouteNode thread = new ThreadDeleteRouteNode(routeNode);
+        thread.start();
+
+        try {
+            thread.join();
+
+            if(thread.getIsSuccess()) {
+                updateRouteNode();
+            }
+        } catch (InterruptedException e) {
+            Log.d(KEY, e.toString());
+        }
+    }
+
+    private class ThreadDeleteRouteNode extends Thread {
+
+        private boolean isSuccess = false;
+
+        private String message;
+
+        private RouteNode mRouteNode;
+
+        public ThreadDeleteRouteNode(RouteNode routeNode) {
+            this.mRouteNode = routeNode;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                byte[] data = HttpUtil.readRouteParse("deleteRouteNode", null, mRouteNode);
+                String str = new String(data);
+                JSONObject jsonObject = new JSONObject(str);
+
+                RouteNodeResponse routeNodeResponse = new RouteNodeResponse();
+                routeNodeResponse.setMessage(jsonObject.getString("message"));
+                if(routeNodeResponse != null && routeNodeResponse.getMessage().compareTo("success!") == 0) {
+                    Log.d(KEY, "deleteRouteNode" + " get data from server success!");
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                    message = routeNodeResponse.getMessage();
+                    Log.d(KEY, routeNodeResponse.getMessage());
+                }
+                Log.d(KEY, str);
+            } catch (Exception e) {
+                Log.e(KEY, e.toString());
+            }
+        }
+
+    }
+
+    private void updateRouteNode() {
+        UserRoute userRoute = new UserRoute();
+        userRoute.setRouteId(curRouteId);
+        ThreadUpdateRouteNode thread = new ThreadUpdateRouteNode(userRoute, "queryRouteNodeByRouteId");
+        thread.start();
+
+        try {
+            thread.join();
+
+            if(thread.getIsSuccess()) {
+                refresh();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class ThreadUpdateRouteNode extends Thread {
+
+        private boolean isSuccess = false;
+
+        private String message;
+
+        private UserRoute mUserRoute;
+
+        private String urlAdd;
+
+        public ThreadUpdateRouteNode(UserRoute userRoute, String urlAdd) {
+            this.mUserRoute = userRoute;
+            this.urlAdd = urlAdd;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                byte[] data = HttpUtil.readRouteParse(urlAdd, mUserRoute, null);
+                String str = new String(data);
+                JSONObject jsonObject = new JSONObject(str);
+
+                RouteNodeResponse routeNodeResponse = new RouteNodeResponse();
+                routeNodeResponse.setMessage(jsonObject.getString("message"));
+                if(routeNodeResponse != null && routeNodeResponse.getMessage().compareTo("success!") == 0) {
+                    Log.d(KEY, urlAdd + " get data from server success!");
+                    isSuccess = true;
+                    JSONArray jsonArray =new JSONArray(jsonObject.getString("nodeList"));
+
+                    curNodeResponse.getNodeList().clear();
+
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        RouteNode newNode = new RouteNode();
+                        newNode.setDesId(object.getString("desId"));
+                        newNode.setDesName(object.getString("desName"));
+                        newNode.setLatitude(object.getDouble("latitude"));
+                        newNode.setlongitude(object.getDouble("longitude"));
+                        newNode.setNodeId(object.getInt("nodeId"));
+                        newNode.setRouteId(object.getInt("routeId"));
+
+                        curNodeResponse.addRouteNode(newNode);
+                    }
+
+                } else {
+                    isSuccess = false;
+                    message = routeNodeResponse.getMessage();
+                    Log.d(KEY, routeNodeResponse.getMessage());
+                }
+                Log.d(KEY, str);
+            } catch (Exception e) {
+                Log.e(KEY, e.toString());
+            }
+        }
+
+    }
+
     @Override
     public void onBackPressed() {
         Log.d(KEY, "back pressed!");
@@ -173,7 +389,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     }
 
     private void refresh() {
-        RoutePlanAdapter routeAdapter = new RoutePlanAdapter(this, list);
+        RoutePlanAdapter routeAdapter = new RoutePlanAdapter(this, curNodeResponse.getNodeList());
         node_list_view.setAdapter(routeAdapter);
         routeAdapter.setOnItemClickListener(new OnRecyclerViewItemClickListener() {
             @Override
@@ -219,24 +435,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
         }
 
-
-
         routePlanWithParam();
-
-//        mNaviHelper.initNaviEngine(this, new IBEngineInitListener() {
-//            @Override
-//            public void engineInitSuccess() {
-//                Log.d("View", "engineInitSuccess");
-//                if(startLoc.toString()!=null&&endLoc.toString()!=null)
-//                    param = new BikeNaviLaunchParam().stPt(startLoc).endPt(endLoc).vehicle(1);
-//                routePlanWithParam();
-//            }
-//
-//            @Override
-//            public void engineInitFail() {
-//                Log.d("View", "engineInitFail");
-//            }
-//        });
     }
 
     //开始算路
@@ -280,9 +479,15 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 //ResultEntity result = (ResultEntity) bundle.getSerializable("result");
                 Log.d(KEY, ((ResultEntity)data.getSerializableExtra("result")).getCity() + " result");
                 LatLng latLng = new LatLng(resultEntity.getLatitude(), resultEntity.getLongitude());
-                RoutePlanNode newNode = new RoutePlanNode(latLng, resultEntity.getKey());
-                list.add(newNode);
-                refresh();
+
+                RouteNode routeNode = new RouteNode();
+                routeNode.setRouteId(curRouteId);
+                routeNode.setlongitude(latLng.longitude);
+                routeNode.setLatitude(latLng.latitude);
+                routeNode.setDesName(resultEntity.getDis());
+                routeNode.setDesId(resultEntity.getuId());
+
+                addRouteNode(routeNode);
             } else if(BIKE_GUIDE_ACTIVITY == requestCode) {
                 Log.d(KEY, "finish bikeNavi");
                 finish();
@@ -292,10 +497,10 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
     private class RoutePlanAdapter extends RecyclerView.Adapter implements View.OnClickListener {
 
-        private List<RoutePlanNode> list;
+        private List<RouteNode> list;
         private Context context;
 
-        public RoutePlanAdapter(Context context, List<RoutePlanNode> list) {
+        public RoutePlanAdapter(Context context, List<RouteNode> list) {
             this.context = context;
             this.list = list;
         }
@@ -330,7 +535,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
         public class ItemHolder extends RecyclerView.ViewHolder {
 
-            private RoutePlanNode routeNode;
+            private RouteNode routeNode;
 
             private TextView nodeName;
             private Button setStart;
@@ -352,9 +557,9 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 deleteNode.setOnClickListener(RoutePlanAdapter.this);
             }
 
-            public void bind(RoutePlanNode node) {
+            public void bind(RouteNode node) {
                 routeNode = node;
-                nodeName.setText(node.getName());
+                nodeName.setText(node.getDesName());
             }
         }
 
@@ -375,17 +580,17 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
             if (mOnItemClickListener != null) {
                 switch (v.getId()){
                     case R.id.set_start:
-//                        mOnItemClickListener.onClick(v, ViewName.SET_START, position);
-                        startLoc = list.get(position).getLatLng();
+                        startLoc = new LatLng(list.get(position).getLatitude(), list.get(position).getlongitude());
                         Log.d(KEY, "setStart : " + startLoc.latitude + " , " + startLoc.longitude);
                         break;
                     case R.id.set_end:
-                        endLoc = list.get(position).getLatLng();
+                        endLoc = new LatLng(list.get(position).getLatitude(), list.get(position).getlongitude());
                         Log.d(KEY, "setEnd : " + endLoc.latitude + " , " + endLoc.longitude);
 //                        mOnItemClickListener.onClick(v, ViewName.SET_END, position);
                         break;
                     case R.id.delete_node:
-                        list.remove(position);
+//                        list.remove(position);
+                        deleteNode(list.get(position));
                         mOnItemClickListener.onClick(v, ViewName.DELETE_NODE, position);
                         break;
                     default:
