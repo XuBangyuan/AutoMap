@@ -61,7 +61,6 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
         mSuggestionSearch.setOnGetSuggestionResultListener(this);
 
         Intent intent = getIntent();
-        //Log.d(KEY, intent == null ? "null" : intent.getExtras().getString("city"));
         Bundle bundle = intent.getExtras();
 
         // 初始化view
@@ -75,9 +74,6 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
 
         mKeyWordsView = (AutoCompleteTextView) findViewById(R.id.searchkey);
         mKeyWordsView.setThreshold(1);
-
-//        setResult(RESULT_OK);
-//        finish();
 
         // 当输入关键字变化时，动态更新建议列表
         mKeyWordsView.addTextChangedListener(new TextWatcher() {
@@ -127,7 +123,6 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
         for (SuggestionResult.SuggestionInfo info : suggestionResult.getAllSuggestions()) {
             if (info.getKey() != null && info.getDistrict() != null && info.getCity() != null) {
 
-//                Log.d("uid", info.getUid());
                 ResultEntity resultEntity = new ResultEntity(info.getUid(), info.getKey(), info.getCity(),
                         info.getDistrict(), info.getPt().latitude, info.getPt().longitude);
                 suggest.add(resultEntity);
@@ -199,9 +194,7 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
     @Override
     public void onBackPressed() {
         Log.d(KEY, "back pressed!");
-        if(result != null) {
-            setResult(RESULT_OK, result);
-        }
+        setResult(RESULT_CANCELED);
         finish();
     }
 

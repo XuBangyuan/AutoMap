@@ -1,5 +1,6 @@
 package com.baidu.automap.util;
 
+import com.baidu.automap.entity.DesDetailIntroduction;
 import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.User;
 import com.baidu.automap.entity.UserRoute;
@@ -132,6 +133,57 @@ public class HttpUtil {
         inStream.close();
 
 //        Thread.sleep(100);
+
+        return outStream.toByteArray();
+
+    }
+
+    public static byte[] readDesDetailParse(String urlPath, final DesDetailIntroduction introduction) throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        final byte[] data = new byte[1024];
+
+        final URL url = new URL(urlPrefix + "detail/" + urlPath);
+
+        int len = 0;
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        JSONObject json = new JSONObject();
+
+        if(introduction != null) {
+            if(introduction.getDesId() != null) {
+                json.put("desId", introduction.getDesId() + "");
+            }
+            if(introduction.getIntroduction() != null) {
+                json.put("introduction", introduction.getIntroduction());
+            }
+            if(introduction.getuId() != null) {
+                json.put("uId", introduction.getuId());
+            }
+        }
+
+        String content = String.valueOf(json);
+
+        conn.setConnectTimeout(5000);
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("User-Agent", "Fiddler");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Charset", "UTF-8");
+        OutputStream os = conn.getOutputStream();
+        os.write(content.getBytes());
+        os.close();
+
+        InputStream inStream = conn.getInputStream();
+
+        while ((len = inStream.read(data)) != -1) {
+
+            outStream.write(data, 0, len);
+
+        }
+
+        inStream.close();
 
         return outStream.toByteArray();
 

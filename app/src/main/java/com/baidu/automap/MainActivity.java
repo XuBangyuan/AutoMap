@@ -17,10 +17,15 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.multidex.MultiDex;
 
+import com.baidu.automap.entity.RouteNode;
+import com.baidu.automap.entity.response.RouteNodeResponse;
+import com.baidu.automap.search.BuildDetailActivity;
 import com.baidu.automap.search.PoiSugSearchDemo;
 import com.baidu.automap.entity.ResultEntity;
 import com.baidu.automap.searchroute.RoutePlanActivity;
+import com.baidu.automap.searchroute.SelectRoutePlanActivity;
 import com.baidu.automap.searchroute.WalkingRouteSearchDemo;
+import com.baidu.automap.util.HttpUtil;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.location.LocationClient;
@@ -50,6 +55,8 @@ import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.utils.DistanceUtil;
 
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -64,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
 
     //poi检索
     private PoiSearch mPoiSearch = null;
+    private RouteNode curPoiRouteNode;
 
     private SDKReceiver mReceiver;
 
@@ -86,13 +94,17 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     //路线规划按钮
     private Button routePlanButton = null;
 
+    //requestCode
     //poi_sug搜索
     private static final int POI_SUG = 1;
     //RoutePlanActivity
     private static final int ROUTE_PLAN = 2;
+    //BuildDetailActivity
+    private static final int BUILD_DETAIL = 3;
 
     //当前用户userId
     private Integer userId;
+    private Boolean isAdministrator;
 
     //步行导航
     private static final int WALKING_ROUTE = 2;
@@ -151,14 +163,6 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMyLocationEnabled(true);
 
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        userId = bundle.getInt("userId");
-        if(userId != null) {
-            Log.d(KEY, "get userId : " + userId);
-        }
-
-
         line = (LinearLayout) findViewById(R.id.line);
         searchButton = (Button) findViewById(R.id.search_button);
         goBackButton = (Button) findViewById(R.id.go_back_button);
@@ -174,6 +178,19 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         buildGuildButton = (Button) findViewById(R.id.build_guild_button);
         routePlanButton = (Button) findViewById(R.id.route_plan);
 
+        curPoiRouteNode = new RouteNode();
+
+        final Intent intent = getIntent();
+        final Bundle bundle = intent.getExtras();
+        userId = bundle.getInt("userId");
+        isAdministrator = bundle.getBoolean("isAdministrator");
+        if(userId != null) {
+            Log.d(KEY, "get userId : " + userId);
+        }
+        if(isAdministrator) {
+            buildDetailButton.setText("编辑详情");
+        }
+
         //路线规划按钮点击
         routePlanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,6 +204,19 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             }
         });
 
+        //详情按钮点击
+        buildDetailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(MainActivity.this, BuildDetailActivity.class);
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("desId", curPoiRouteNode.getDesId());
+                bundle1.putBoolean("isAdmin", isAdministrator);
+                intent1.putExtras(bundle1);
+                startActivityForResult(intent1, BUILD_DETAIL);
+            }
+        });
+
         //加入路线按钮点击
         buildInsertIntoRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 Intent intent = new Intent(MainActivity.this, RoutePlanActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putInt(CALL_FOR_ROUTE_PLAN_ACTIVITY, CALL_FOR_ADD);
+                bundle.putInt("userId", userId);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, ROUTE_PLAN);
             }
@@ -417,6 +448,10 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         openTimeText.setText(poiDetailInfo.getShopHours());
 
         endNode = build;
+        curPoiRouteNode.setDesId(poiDetailInfo.getUid());
+        curPoiRouteNode.setDesName(poiDetailInfo.getName());
+        curPoiRouteNode.setLatitude(poiDetailInfo.getLocation().latitude);
+        curPoiRouteNode.setlongitude(poiDetailInfo.getLocation().longitude);
 
         isBack = true;
         briedIntroductionLinear.setVisibility(View.VISIBLE);
@@ -477,16 +512,84 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         Log.d(KEY, "request : " + requestCode + " result : " + resultCode);
         if(RESULT_OK == resultCode) {
             if(POI_SUG == requestCode) {
-                //Bundle bundle = data.getExtras();
-                Log.d(KEY, "want to know data");
+                Log.d(KEY, "poi_sug onActivityResult");
                 ResultEntity resultEntity = (ResultEntity) data.getSerializableExtra("result");
-                //ResultEntity result = (ResultEntity) bundle.getSerializable("result");
                 Log.d(KEY, ((ResultEntity)data.getSerializableExtra("result")).getCity() + " result");
                 LatLng latLng = new LatLng(resultEntity.getLatitude(), resultEntity.getLongitude());
                 navigateTo(latLng);
                 createMarker(resultEntity);
+            } else if(ROUTE_PLAN == requestCode){
+                Log.e(KEY, "route_plan onActivityResult");
+                curPoiRouteNode.setRouteId(data.getIntExtra("routeId", -1));
+
+                if(curPoiRouteNode.getRouteId() != -1) {
+                    Log.d(KEY, "insert into routeId : " + curPoiRouteNode.getRouteId());
+                    addRouteNode(curPoiRouteNode);
+                }
             }
         }
+    }
+
+    //添加路线节点
+    private void addRouteNode(RouteNode routeNode) {
+        ThreadAddRouteNode thread = new ThreadAddRouteNode(routeNode);
+        thread.start();
+
+        try {
+            thread.join();
+
+            if(thread.getIsSuccess()) {
+                Log.d(KEY, "insert into routeId : " + curPoiRouteNode.getRouteId() + " success!");
+            }
+        } catch (InterruptedException e) {
+            Log.d(KEY, e.toString());
+        }
+    }
+
+    private class ThreadAddRouteNode extends Thread {
+
+        private boolean isSuccess = false;
+
+        private String message;
+
+        private RouteNode mRouteNode;
+
+        public ThreadAddRouteNode(RouteNode routeNode) {
+            this.mRouteNode = routeNode;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                byte[] data = HttpUtil.readRouteParse("addRouteNode", null, mRouteNode);
+                String str = new String(data);
+                JSONObject jsonObject = new JSONObject(str);
+
+                RouteNodeResponse routeNodeResponse = new RouteNodeResponse();
+                routeNodeResponse.setMessage(jsonObject.getString("message"));
+                if(routeNodeResponse != null && routeNodeResponse.getMessage().compareTo("success!") == 0) {
+                    Log.d(KEY, "addRouteNode" + " get data from server success!");
+                    isSuccess = true;
+                } else {
+                    isSuccess = false;
+                    message = routeNodeResponse.getMessage();
+                    Log.d(KEY, routeNodeResponse.getMessage());
+                }
+                Log.d(KEY, str);
+            } catch (Exception e) {
+                Log.e(KEY, e.toString());
+            }
+        }
+
     }
 
     private void createMarker(ResultEntity resultEntity) {

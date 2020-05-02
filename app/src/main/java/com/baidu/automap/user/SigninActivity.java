@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -13,12 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.baidu.automap.MainActivity;
 import com.baidu.automap.R;
-import com.baidu.automap.entity.ResultEntity;
 import com.baidu.automap.entity.User;
 import com.baidu.automap.entity.response.UserResponse;
 import com.baidu.automap.util.HttpUtil;
-import com.baidu.mapapi.http.HttpClient;
-import com.baidu.mapapi.model.LatLng;
 
 import org.json.JSONObject;
 
@@ -33,6 +31,10 @@ public class SigninActivity extends AppCompatActivity {
     private EditText password;
     private Button loginButton;
     private Button signinButton;
+    private LinearLayout choiceLayout;
+    private Button userButton;
+    private Button administratorButton;
+
     private static final String KEY = "signinActivity";
     private static final int MAIN_ACTIVITY = 1;
     private static final int LOGIN_ACTIVITY = 2;
@@ -51,10 +53,29 @@ public class SigninActivity extends AppCompatActivity {
         password = (EditText) findViewById(R.id.user_password);
         loginButton = (Button) findViewById(R.id.login_button);
         signinButton = (Button) findViewById(R.id.signin_button);
+        choiceLayout = (LinearLayout) findViewById(R.id.choice_layout);
+        userButton = (Button) findViewById(R.id.user_button);
+        administratorButton = (Button) findViewById(R.id.administrator_button);
+
+        choiceLayout.setVisibility(View.GONE);
 
         curUser = new User();
 
+        //用户界面
+        userButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startMap(false);
+            }
+        });
 
+        //管理员界面
+        administratorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startMap(true);
+            }
+        });
 
         signinButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,34 +92,6 @@ public class SigninActivity extends AppCompatActivity {
 
                 } else {
                     // Android 4.0 之后不能在主线程中请求HTTP请求
-//                    Thread thread = new Thread(new Runnable(){
-//                        @Override
-//                        public void run() {
-//                            try {
-//
-//                                byte[] data = HttpUtil.readUserParse("queryUser", user);
-//                                String str = new String(data);
-//                                JSONObject jsonObject = new JSONObject(str);
-//
-//                                UserResponse userResponse = new UserResponse();
-//                                userResponse.setMessage(jsonObject.getString("message"));
-//                                if(userResponse != null && userResponse.getMessage().compareTo("success!") == 0) {
-//                                    Log.d(KEY, "get data from server success!");
-//                                    JSONObject jsonUser = new JSONObject(jsonObject.getString("user"));
-//
-//                                    curUser.setPhone(jsonUser.getString("phone"));
-//                                    curUser.setPassword(jsonUser.getString("password"));
-//                                    curUser.setUserId(Integer.parseInt(jsonUser.getString("userId")));
-//
-//                                } else {
-//                                    Log.d(KEY, userResponse.getMessage());
-//                                }
-//                                Log.d(KEY, str);
-//                            } catch (Exception e) {
-//                                Log.e(KEY, e.toString());
-//                            }
-//                        }
-//                    });
                     ThreadSignin thread = new ThreadSignin(user);
 
                     try {
@@ -111,7 +104,11 @@ public class SigninActivity extends AppCompatActivity {
                     }
 
                     if(thread.getIsSuccess()) {
-                        startMap();
+                        if(curUser.getAdministrator()) {
+                            choiceLayout.setVisibility(View.VISIBLE);
+                        } else {
+                            startMap(false);
+                        }
                     } else {
                         Toast.makeText(SigninActivity.this, thread.getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -160,6 +157,7 @@ public class SigninActivity extends AppCompatActivity {
                 byte[] data = HttpUtil.readUserParse("queryUser", user);
                 String str = new String(data);
                 JSONObject jsonObject = new JSONObject(str);
+                Log.d(KEY, str);
 
                 UserResponse userResponse = new UserResponse();
                 userResponse.setMessage(jsonObject.getString("message"));
@@ -170,8 +168,10 @@ public class SigninActivity extends AppCompatActivity {
 
                     curUser.setPhone(jsonUser.getString("phone"));
                     curUser.setPassword(jsonUser.getString("password"));
-                    curUser.setUserId(Integer.parseInt(jsonUser.getString("userId")));
+                    curUser.setUserId(jsonUser.getInt("userId"));
+                    curUser.setAdministrator(jsonUser.getBoolean("administrator"));
 
+                    Log.d(KEY, "after get from server curUser : " + curUser.toString());
                 } else {
                     isSuccess = false;
                     message = userResponse.getMessage();
@@ -209,10 +209,11 @@ public class SigninActivity extends AppCompatActivity {
     }
 
     //开始进入地图
-    private void startMap() {
+    private void startMap(boolean isAdministrator) {
         Intent intent = new Intent(SigninActivity.this, MainActivity.class);
         Bundle bundle = new Bundle();
         bundle.putInt("userId", curUser.getUserId());
+        bundle.putBoolean("isAdministrator", isAdministrator);
         intent.putExtras(bundle);
         startActivityForResult(intent, MAIN_ACTIVITY);
     }

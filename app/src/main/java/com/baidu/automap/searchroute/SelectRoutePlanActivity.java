@@ -484,7 +484,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 routeNode.setRouteId(curRouteId);
                 routeNode.setlongitude(latLng.longitude);
                 routeNode.setLatitude(latLng.latitude);
-                routeNode.setDesName(resultEntity.getDis());
+                routeNode.setDesName(resultEntity.getKey());
                 routeNode.setDesId(resultEntity.getuId());
 
                 addRouteNode(routeNode);

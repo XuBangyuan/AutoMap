@@ -7,13 +7,23 @@ public class User {
 
     private String phone;
 
-
     private String password;
+
+    private Boolean isAdministrator;
+
+    public Boolean getAdministrator() {
+        return isAdministrator;
+    }
+
+    public void setAdministrator(Boolean administrator) {
+        isAdministrator = administrator;
+    }
 
     public void setUser(User user) {
         this.setUserId(user.getUserId());
         this.setPhone(user.getPhone());
         this.setPassword(user.getPassword());
+        this.setAdministrator(user.isAdministrator);
     }
 
     @Override
@@ -22,6 +32,7 @@ public class User {
                 "userId=" + userId +
                 ", phone='" + phone + '\'' +
                 ", password='" + password + '\'' +
+                ", isAdministrator=" + isAdministrator +
                 '}';
     }
 

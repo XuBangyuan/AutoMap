@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.multidex.MultiDex;
@@ -56,6 +57,8 @@ public class RoutePlanActivity extends AppCompatActivity {
     //唤起的方式
     private static final int CALL_FOR_ADD = 1;
     private static final int CALL_FOR_ROUTE = 2;
+
+    private int callMethod;
 
     private static final int SELECT_ROUTE_PLAN = 1;
 
@@ -153,6 +156,9 @@ public class RoutePlanActivity extends AppCompatActivity {
         Log.d(KEY, "userId :" + curUserId);
         updateUserRoute();
 
+        callMethod = bundle.getInt(CALL_FOR_ROUTE_PLAN_ACTIVITY);
+
+
     }
 
     private void createRoutePlan() {
@@ -238,6 +244,10 @@ public class RoutePlanActivity extends AppCompatActivity {
 
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            if(curRouteResponse.getRouteList() == null || curRouteResponse.getRouteList().size() == 0) {
+                Toast.makeText(RoutePlanActivity.this, "路线列表为空，请添加路线", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -354,13 +364,25 @@ public class RoutePlanActivity extends AppCompatActivity {
         public void onClick(View view) {
             Log.d("holder", "begin click");
 
-            Intent intent = new Intent(RoutePlanActivity.this, SelectRoutePlanActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putInt("routeId", route.getRouteId());
-            intent.putExtras(bundle);
+            if(callMethod == CALL_FOR_ROUTE) {
 
-            Log.d(KEY, "routeId : " + route.getRouteId() + ", des : " + route.getDescription());
-            startActivityForResult(intent, SELECT_ROUTE_PLAN);
+                Intent intent = new Intent(RoutePlanActivity.this, SelectRoutePlanActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("routeId", route.getRouteId());
+                intent.putExtras(bundle);
+
+                Log.d(KEY, "routeId : " + route.getRouteId() + ", des : " + route.getDescription());
+                startActivityForResult(intent, SELECT_ROUTE_PLAN);
+            } else if(callMethod == CALL_FOR_ADD) {
+                //返回主界面，执行路线添加
+                Intent intent = new Intent();
+                Bundle bundle = new Bundle();
+                bundle.putInt("routeId", route.getRouteId());
+                intent.putExtras(bundle);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+
 
         }
 
