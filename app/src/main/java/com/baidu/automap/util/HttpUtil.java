@@ -1,5 +1,7 @@
 package com.baidu.automap.util;
 
+import android.util.Log;
+
 import com.baidu.automap.entity.Comment;
 import com.baidu.automap.entity.DesDetailIntroduction;
 import com.baidu.automap.entity.Journey;
@@ -17,6 +19,7 @@ import java.net.URL;
 
 public class HttpUtil {
     private static final String urlPrefix = "http://192.168.1.91:8081/auto_map_war_exploded/";
+    private static final String KEY = "httpUtil";
 
     public static byte[] readUserParse(String urlPath, final User user) throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -261,7 +264,7 @@ public class HttpUtil {
 
         final byte[] data = new byte[1024];
 
-        final URL url = new URL(urlPrefix + "journey/" + urlPath);
+        final URL url = new URL(urlPrefix + "comment/" + urlPath);
 
         int len = 0;
 
@@ -277,7 +280,7 @@ public class HttpUtil {
                 json.put("agree", comment.getAgree());
             }
             if(comment.getCreateTime() != null) {
-                json.put("createTime", comment.getCreateTime());
+                json.put("createTime", comment.getCreateTime().getTime());
             }
             if(comment.getDetail() != null) {
                 json.put("detail", comment.getDetail());
@@ -289,6 +292,7 @@ public class HttpUtil {
                 json.put("userId", comment.getUserId());
             }
 
+            Log.d(KEY, json.toString());
 
         }
 

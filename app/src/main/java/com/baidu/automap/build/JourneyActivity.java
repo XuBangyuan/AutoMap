@@ -114,12 +114,12 @@ public class JourneyActivity extends AppCompatActivity {
         public void bind(Journey journey) {
             Log.d("holder", "begin bind " + journey.toString());
 
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             this.journey = journey;
             title.setText(journey.getTitle());
             author.setText(journey.getUserId() + "");
             createTime.setText(format.format(journey.getCreateTime()));
-            agree.setText(journey.getAgree() + "");
+            agree.setText("赞 ：" + journey.getAgree() + "");
 
             Log.d("holder", "end bind");
 
@@ -132,6 +132,8 @@ public class JourneyActivity extends AppCompatActivity {
             Intent intent = new Intent(JourneyActivity.this, JourneyDetailActivity.class);
             Bundle bundle = new Bundle();
             bundle.putParcelable("journey", journey);
+            bundle.putLong("createTime", journey.getCreateTime().getTime());
+            bundle.putInt("userId", userId);
             intent.putExtras(bundle);
 
             startActivityForResult(intent, JOURNEY_DETAIL);
