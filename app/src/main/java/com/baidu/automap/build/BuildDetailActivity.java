@@ -1,4 +1,4 @@
-package com.baidu.automap.search;
+package com.baidu.automap.build;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -15,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.baidu.automap.R;
 import com.baidu.automap.entity.DesDetailIntroduction;
 import com.baidu.automap.entity.response.DesDetailResponse;
-import com.baidu.automap.entity.response.UserResponse;
 import com.baidu.automap.util.HttpUtil;
 
 import org.json.JSONObject;
@@ -35,6 +33,11 @@ public class BuildDetailActivity extends AppCompatActivity {
     private Boolean isAdmin;
     //地点介绍信息
     private DesDetailIntroduction introduction;
+    //userId
+    private int userId;
+
+    //journeyActivity
+    private static final int JOURNEY_DETAIL = 1;
 
     private String KEY = "buildDetailActivity";
 
@@ -47,9 +50,10 @@ public class BuildDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
+        userId = bundle.getInt("userId");
         isAdmin = bundle.getBoolean("isAdmin");
         introduction.setuId(bundle.getString("desId"));
-        Log.d(KEY, "isAdmin : " + isAdmin + ", uId : " + introduction.getuId());
+        Log.d(KEY, "userId : " + userId + ", isAdmin : " + isAdmin + ", uId : " + introduction.getuId());
 
         strategyButton = (Button) findViewById(R.id.strategy_button);
         guideVideoButton = (Button) findViewById(R.id.guide_video_button);
@@ -68,7 +72,12 @@ public class BuildDetailActivity extends AppCompatActivity {
         strategyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent1 = new Intent(BuildDetailActivity.this, JourneyActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("uId", introduction.getuId());
+                bundle.putInt("userId", userId);
+                intent1.putExtras(bundle);
+                startActivityForResult(intent1, JOURNEY_DETAIL);
             }
         });
 

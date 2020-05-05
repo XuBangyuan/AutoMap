@@ -3,7 +3,6 @@ package com.baidu.automap.searchroute;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,22 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.baidu.automap.R;
-import com.baidu.automap.entity.ResultEntity;
 import com.baidu.automap.entity.RoutePlanList;
-import com.baidu.automap.entity.RoutePlanNode;
-import com.baidu.automap.entity.User;
 import com.baidu.automap.entity.UserRoute;
 import com.baidu.automap.entity.response.RouteResponse;
-import com.baidu.automap.entity.response.UserResponse;
-import com.baidu.automap.search.PoiSugSearchDemo;
 import com.baidu.automap.util.HttpUtil;
-import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.core.RouteNode;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class RoutePlanActivity extends AppCompatActivity {
@@ -64,65 +55,6 @@ public class RoutePlanActivity extends AppCompatActivity {
 
     //bundle取出key
     private static final String CALL_FOR_ROUTE_PLAN_ACTIVITY = "CALL_FOR_ROUTE_PLAN_ACTIVITY";
-
-//     {
-//         curRouteList = aRouteList;
-//         //a路线
-//         LatLng aLoc = new LatLng(31.716205897230694 , 113.3500127893836);
-//         String aName = "楚天超市";
-//         aRouteList.add(new RoutePlanNode(aLoc, aName));
-//
-//         aLoc = new LatLng(31.71736545380307 , 113.32903735572563);
-//         aName = "星乐小区";
-//         aRouteList.add(new RoutePlanNode(aLoc, aName));
-//
-//         aLoc = new LatLng(31.73153236289405 , 113.35258194314216);
-//         aName = "随州市植物园";
-//         aRouteList.add(new RoutePlanNode(aLoc, aName));
-//
-//         aLoc = new LatLng(31.708933377382394 , 113.36652364465701);
-//         aName = "白云公园";
-//         aRouteList.add(new RoutePlanNode(aLoc, aName));
-//
-//         //b路线
-//         LatLng bLoc = new LatLng(31.727478316334143 , 113.37837229433362);
-//         String bName = "大润发";
-//         bRouteList.add(new RoutePlanNode(bLoc, bName));
-//
-//         bLoc = new LatLng(31.72144298345487 , 113.3835195849058);
-//         bName = "时代广场";
-//         bRouteList.add(new RoutePlanNode(bLoc, bName));
-//
-//         bLoc = new LatLng(31.741359611105874 , 113.37715059884005);
-//         bName = "明珠广场";
-//         bRouteList.add(new RoutePlanNode(bLoc, bName));
-//
-//         bLoc = new LatLng( 31.748030791339843 , 113.3873104341579);
-//         bName = "曾都二中";
-//         bRouteList.add(new RoutePlanNode(bLoc, bName));
-//
-//         //c路线
-//         LatLng cLoc = new LatLng(31.732906705449654, 113.3627777106804);
-//         String cName = "随州博物馆";
-//         cRouteList.add(new RoutePlanNode(cLoc, cName));
-//
-//         cLoc = new LatLng(31.742411371396905, 113.36523008472264);
-//         cName = "随州市一中";
-//         cRouteList.add(new RoutePlanNode(cLoc, cName));
-//
-//         cLoc = new LatLng(31.756052453979482, 113.3792616167885);
-//         cName = "圆梦星光城";
-//         cRouteList.add(new RoutePlanNode(cLoc, cName));
-//
-//         cLoc = new LatLng(31.761801520065358, 113.37615347972398);
-//         cName = "星光便民店";
-//         cRouteList.add(new RoutePlanNode(cLoc, cName));
-//
-//         allRouteList.clear();
-//         allRouteList.add(aRouteList);
-//         allRouteList.add(bRouteList);
-//         allRouteList.add(cRouteList);
-//    }
 
 
     @Override

@@ -67,30 +67,6 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
     private RoutePlanList curRouteList;
 
-    {
-        configCity = "随州";
-
-        list = new LinkedList<>();
-        //a路线
-        LatLng aLoc = new LatLng(31.716205897230694 , 113.3500127893836);
-        String aName = "楚天超市";
-        list.add(new RoutePlanNode(aLoc, aName));
-
-        aLoc = new LatLng(31.71736545380307 , 113.32903735572563);
-        aName = "星乐小区";
-        list.add(new RoutePlanNode(aLoc, aName));
-
-        aLoc = new LatLng(31.73153236289405 , 113.35258194314216);
-        aName = "随州市植物园";
-        list.add(new RoutePlanNode(aLoc, aName));
-
-        aLoc = new LatLng(31.708933377382394 , 113.36652364465701);
-        aName = "白云公园";
-        list.add(new RoutePlanNode(aLoc, aName));
-
-        curLoc = new LatLng(31.732906705449654, 113.3627777106804);
-    }
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
@@ -619,104 +595,6 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     public interface OnRecyclerViewItemClickListener {
         void onClick(View view, ViewName viewName, int position);
     }
-
-
-
-//    private class RouteNodeHolder extends RecyclerView.ViewHolder
-//            implements View.OnClickListener {
-//
-//        private RoutePlanNode routeNode;
-//
-//        private TextView nodeName;
-//        private Button setStart;
-//        private Button setEnd;
-//        private Button deleteNode;
-//
-//        public RouteNodeHolder(LayoutInflater inflater, ViewGroup parent) {
-//            super(inflater.inflate(R.layout.route_node_layout, parent, false));
-//            Log.d("holder", "begin build");
-//            itemView.setOnClickListener(this);
-//
-//            nodeName = (TextView) itemView.findViewById(R.id.select_node_name);
-//            setStart = (Button) findViewById(R.id.set_start);
-//            setEnd = (Button) findViewById(R.id.set_end);
-//            deleteNode = (Button) findViewById(R.id.delete_node);
-//
-//
-//            Log.d("holder", "end build");
-//        }
-//
-//        public void bind(RoutePlanNode node) {
-//            Log.d("holder", "begin bind");
-//
-//            routeNode = node;
-//            nodeName.setText(routeNode.getName());
-//
-//            Log.d("holder", "end bind");
-//
-//        }
-//
-//        @Override
-//        public void onClick(View view) {
-//            Log.d("holder", "begin click");
-////            for(RoutePlanNode node : routeNodeList) {
-////                Log.d(KEY, "nodeLatlng " + node.getLatLng().latitude + " , " + node.getLatLng().longitude);
-////            }
-//        }
-//
-//    }
-//
-//
-//    public interface OnRecyclerViewItemClickListener {
-//        void onClick(View view, ViewName viewName, int position);
-//    }
-//
-//    public enum ViewName {
-//        SET_START,
-//        SET_END,
-//        DEL_NODE
-//    }
-//
-//    private class RouteAdapter extends RecyclerView.Adapter<RouteNodeHolder> {
-//
-//        private List<RoutePlanNode> routeList;
-//        private OnRecyclerViewItemClickListener mOnItemClickListener = null;
-//
-//
-//        public void setOnItemClickListener(OnRecyclerViewItemClickListener listener) {
-//            this.mOnItemClickListener = listener;
-//        }
-//
-//        public RouteAdapter(List<RoutePlanNode> list) {
-//
-//            routeList = list;
-//        }
-//
-//        @Override
-//        public RouteNodeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//            LayoutInflater layoutInflater = LayoutInflater.from(RoutePlanActivity.this);
-//            Log.d("adapter", "begin");
-//
-//            return new RoutePlanActivity.RouteNodeHolder(layoutInflater, parent);
-//        }
-//
-//
-//
-//        @Override
-//        public void onBindViewHolder(RoutePlanActivity.RouteNodeHolder holder, int position) {
-//            Log.d("adapter", "begin bind");
-//
-//            List<RoutePlanNode> list = routePlanList.get(position);
-//            holder.bind(list);
-//
-//            Log.d("adapter", "end bind");
-//        }
-//
-//        @Override
-//        public int getItemCount() {
-//            return routePlanList.size();
-//        }
-//    }
 
     private String getRouteDetail(List<RoutePlanNode> list) {
         StringBuffer detailBuffer = new StringBuffer();

@@ -42,7 +42,9 @@
         <activity android:name=".searchroute.RoutePlanActivity"/>
         <activity android:name=".searchroute.SelectRoutePlanActivity"/>
         <activity android:name=".user.LoginActivity"/>
-        <activity android:name=".search.BuildDetailActivity"/>
+        <activity android:name=".build.BuildDetailActivity"/>
+        <activity android:name=".build.JourneyActivity"/>
+        <activity android:name=".build.JourneyDetailActivity"/>
 
 
         <meta-data

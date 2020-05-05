@@ -19,11 +19,10 @@ import androidx.multidex.MultiDex;
 
 import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.response.RouteNodeResponse;
-import com.baidu.automap.search.BuildDetailActivity;
+import com.baidu.automap.build.BuildDetailActivity;
 import com.baidu.automap.search.PoiSugSearchDemo;
 import com.baidu.automap.entity.ResultEntity;
 import com.baidu.automap.searchroute.RoutePlanActivity;
-import com.baidu.automap.searchroute.SelectRoutePlanActivity;
 import com.baidu.automap.searchroute.WalkingRouteSearchDemo;
 import com.baidu.automap.util.HttpUtil;
 import com.baidu.location.BDAbstractLocationListener;
@@ -211,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 Intent intent1 = new Intent(MainActivity.this, BuildDetailActivity.class);
                 Bundle bundle1 = new Bundle();
                 bundle1.putString("desId", curPoiRouteNode.getDesId());
+                bundle1.putInt("userId", userId);
                 bundle1.putBoolean("isAdmin", isAdministrator);
                 intent1.putExtras(bundle1);
                 startActivityForResult(intent1, BUILD_DETAIL);

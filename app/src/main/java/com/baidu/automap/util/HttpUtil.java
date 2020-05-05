@@ -1,6 +1,8 @@
 package com.baidu.automap.util;
 
+import com.baidu.automap.entity.Comment;
 import com.baidu.automap.entity.DesDetailIntroduction;
+import com.baidu.automap.entity.Journey;
 import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.User;
 import com.baidu.automap.entity.UserRoute;
@@ -161,6 +163,133 @@ public class HttpUtil {
             if(introduction.getuId() != null) {
                 json.put("uId", introduction.getuId());
             }
+        }
+
+        String content = String.valueOf(json);
+
+        conn.setConnectTimeout(5000);
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("User-Agent", "Fiddler");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Charset", "UTF-8");
+        OutputStream os = conn.getOutputStream();
+        os.write(content.getBytes());
+        os.close();
+
+        InputStream inStream = conn.getInputStream();
+
+        while ((len = inStream.read(data)) != -1) {
+
+            outStream.write(data, 0, len);
+
+        }
+
+        inStream.close();
+
+        return outStream.toByteArray();
+
+    }
+
+    public static byte[] readJourneyParse(String urlPath, final Journey journey) throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        final byte[] data = new byte[1024];
+
+        final URL url = new URL(urlPrefix + "journey/" + urlPath);
+
+        int len = 0;
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        JSONObject json = new JSONObject();
+
+        if(journey != null) {
+            if(journey.getDesId() != null) {
+                json.put("desId", journey.getDesId());
+            }
+            if(journey.getAgree() != null) {
+                json.put("agree", journey.getAgree());
+            }
+            if(journey.getCreateTime() != null) {
+                json.put("createTime", journey.getCreateTime());
+            }
+            if(journey.getDetail() != null) {
+                json.put("detail", journey.getDetail());
+            }
+            if(journey.getId() != null) {
+                json.put("id", journey.getId());
+            }
+            if(journey.getTitle() != null) {
+                json.put("title", journey.getTitle());
+            }
+            if(journey.getUserId() != null) {
+                json.put("userId", journey.getUserId());
+            }
+
+
+        }
+
+        String content = String.valueOf(json);
+
+        conn.setConnectTimeout(5000);
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("User-Agent", "Fiddler");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Charset", "UTF-8");
+        OutputStream os = conn.getOutputStream();
+        os.write(content.getBytes());
+        os.close();
+
+        InputStream inStream = conn.getInputStream();
+
+        while ((len = inStream.read(data)) != -1) {
+
+            outStream.write(data, 0, len);
+
+        }
+
+        inStream.close();
+
+        return outStream.toByteArray();
+
+    }
+
+    public static byte[] readCommentParse(String urlPath, final Comment comment) throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        final byte[] data = new byte[1024];
+
+        final URL url = new URL(urlPrefix + "journey/" + urlPath);
+
+        int len = 0;
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        JSONObject json = new JSONObject();
+
+        if(comment != null) {
+            if(comment.getJourneyId() != null) {
+                json.put("journeyId", comment.getJourneyId());
+            }
+            if(comment.getAgree() != null) {
+                json.put("agree", comment.getAgree());
+            }
+            if(comment.getCreateTime() != null) {
+                json.put("createTime", comment.getCreateTime());
+            }
+            if(comment.getDetail() != null) {
+                json.put("detail", comment.getDetail());
+            }
+            if(comment.getId() != null) {
+                json.put("id", comment.getId());
+            }
+            if(comment.getUserId() != null) {
+                json.put("userId", comment.getUserId());
+            }
+
+
         }
 
         String content = String.valueOf(json);
