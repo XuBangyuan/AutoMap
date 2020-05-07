@@ -41,6 +41,7 @@ public class JourneyActivity extends AppCompatActivity {
     private static final String KEY = "journeyActivity";
 
     private static final int JOURNEY_DETAIL = 1;
+    private static final int CREATE_JOURNEY = 2;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +58,19 @@ public class JourneyActivity extends AppCompatActivity {
         uId = bundle.getString("uId");
         Log.d(KEY, "userId : " + userId + ", uId : " + uId);
         response = new JourneyResponse();
+
+        //创建攻略按钮点击
+        createJourney.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cIntent = new Intent(JourneyActivity.this, CreateJourneyActivity.class);
+                Bundle cBundle = new Bundle();
+                cBundle.putInt("userId", userId);
+                cBundle.putString("uId", uId);
+                cIntent.putExtras(cBundle);
+                startActivityForResult(cIntent, CREATE_JOURNEY);
+            }
+        });
 
         updateJourneyList();
 
@@ -171,6 +185,18 @@ public class JourneyActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return list.size();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(KEY, "request : " + requestCode + " result : " + resultCode);
+        if(RESULT_OK == resultCode) {
+            if(CREATE_JOURNEY == requestCode || JOURNEY_DETAIL == requestCode) {
+                Log.d(KEY, "journey onActivityResult");
+                updateJourneyList();
+            }
         }
     }
 

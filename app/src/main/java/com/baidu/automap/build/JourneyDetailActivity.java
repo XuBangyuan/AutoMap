@@ -181,6 +181,8 @@ public class JourneyDetailActivity extends AppCompatActivity {
                     }
                 } catch (InterruptedException e) {
                     Log.d(KEY, e.toString());
+                } finally {
+                    setResult(RESULT_OK);
                 }
             }
         });
@@ -244,7 +246,7 @@ public class JourneyDetailActivity extends AppCompatActivity {
                     isSuccess = true;
                 } else {
                     isSuccess = false;
-                    Log.d(KEY, response.getMessage());
+                    Log.d(KEY, mJourneyResponse.getMessage());
                 }
                 Log.d(KEY, str);
             } catch (Exception e) {

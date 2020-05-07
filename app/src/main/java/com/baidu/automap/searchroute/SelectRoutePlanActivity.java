@@ -82,6 +82,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         curRouteId = bundle.getInt("routeId");
+        curLoc = new LatLng(bundle.getDouble("latitude"), bundle.getDouble("longitude"));
         Log.d(KEY, "routeId : " + curRouteId);
 
         curNodeResponse = new RouteNodeResponse();
@@ -354,13 +355,16 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Log.d(KEY, "back pressed!");
-        if(list != null) {
-            Intent intent = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("route_list", curRouteList);
-            intent.putExtras(bundle);
-            setResult(RESULT_OK, intent);
-        }
+//        if(list != null) {
+//            Intent intent = new Intent();
+//            Bundle bundle = new Bundle();
+//            bundle.putParcelable("route_list", curRouteList);
+//            intent.putExtras(bundle);
+//            setResult(RESULT_OK, intent);
+//        } else {
+//            setResult(RESULT_OK);
+//        }
+        setResult(RESULT_OK);
         finish();
     }
 

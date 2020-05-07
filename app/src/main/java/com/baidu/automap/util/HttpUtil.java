@@ -5,6 +5,7 @@ import android.util.Log;
 import com.baidu.automap.entity.Comment;
 import com.baidu.automap.entity.DesDetailIntroduction;
 import com.baidu.automap.entity.Journey;
+import com.baidu.automap.entity.Mp3Entity;
 import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.User;
 import com.baidu.automap.entity.UserRoute;
@@ -215,7 +216,7 @@ public class HttpUtil {
                 json.put("agree", journey.getAgree());
             }
             if(journey.getCreateTime() != null) {
-                json.put("createTime", journey.getCreateTime());
+                json.put("createTime", journey.getCreateTime().getTime());
             }
             if(journey.getDetail() != null) {
                 json.put("detail", journey.getDetail());
@@ -290,6 +291,63 @@ public class HttpUtil {
             }
             if(comment.getUserId() != null) {
                 json.put("userId", comment.getUserId());
+            }
+
+            Log.d(KEY, json.toString());
+
+        }
+
+        String content = String.valueOf(json);
+
+        conn.setConnectTimeout(5000);
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("User-Agent", "Fiddler");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Charset", "UTF-8");
+        OutputStream os = conn.getOutputStream();
+        os.write(content.getBytes());
+        os.close();
+
+        InputStream inStream = conn.getInputStream();
+
+        while ((len = inStream.read(data)) != -1) {
+
+            outStream.write(data, 0, len);
+
+        }
+
+        inStream.close();
+
+        return outStream.toByteArray();
+
+    }
+
+    public static byte[] readMP3Parse(String urlPath, final Mp3Entity entity) throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        final byte[] data = new byte[1024];
+
+        final URL url = new URL(urlPrefix + "detail/" + urlPath);
+
+        int len = 0;
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        JSONObject json = new JSONObject();
+
+        if(entity != null) {
+            if(entity.getDesId() != null) {
+                json.put("desId", entity.getDesId());
+            }
+            if(entity.getFile() != null) {
+                json.put("file", entity.getFile());
+            }
+            if(entity.getId() != null) {
+                json.put("id", entity.getId());
+            }
+            if(entity.getName() != null) {
+                json.put("name", entity.getName());
             }
 
             Log.d(KEY, json.toString());

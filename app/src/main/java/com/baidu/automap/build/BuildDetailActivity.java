@@ -38,6 +38,7 @@ public class BuildDetailActivity extends AppCompatActivity {
 
     //journeyActivity
     private static final int JOURNEY_DETAIL = 1;
+    private static final int MEDIUM_ACTIVITY = 2;
 
     private String KEY = "buildDetailActivity";
 
@@ -85,7 +86,11 @@ public class BuildDetailActivity extends AppCompatActivity {
         guideVideoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent mIntent = new Intent(BuildDetailActivity.this, MediumActivity.class);
+                Bundle mBundle = new Bundle();
+                mBundle.putString("uId", introduction.getuId());
+                mIntent.putExtras(mBundle);
+                startActivityForResult(mIntent, MEDIUM_ACTIVITY);
             }
         });
 

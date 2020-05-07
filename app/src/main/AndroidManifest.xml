@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.baidu.automap">
 
     <application
@@ -45,6 +46,8 @@
         <activity android:name=".build.BuildDetailActivity"/>
         <activity android:name=".build.JourneyActivity"/>
         <activity android:name=".build.JourneyDetailActivity"/>
+        <activity android:name=".build.CreateJourneyActivity"/>
+        <activity android:name=".build.MediumActivity"/>
 
 
         <meta-data
@@ -71,6 +74,10 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- 获取摄像头权限，用于AR步行导航 -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 
 

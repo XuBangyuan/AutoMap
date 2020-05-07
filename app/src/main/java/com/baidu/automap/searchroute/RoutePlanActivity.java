@@ -32,6 +32,8 @@ public class RoutePlanActivity extends AppCompatActivity {
     private Button createRouteButton;
     private TextView curRouteName;
     private TextView curRouteDetail;
+    private double curLatitude;
+    private double curLongitude;
 
     private TextView allRouteName;
     private RecyclerView allRouteDetail;
@@ -83,6 +85,8 @@ public class RoutePlanActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
+        curLatitude = bundle.getDouble("latitude");
+        curLongitude = bundle.getDouble("longitude");
         curUserId = bundle.getInt("userId");
         curRouteResponse = new RouteResponse();
         Log.d(KEY, "userId :" + curUserId);
@@ -300,7 +304,10 @@ public class RoutePlanActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(RoutePlanActivity.this, SelectRoutePlanActivity.class);
                 Bundle bundle = new Bundle();
+                bundle.putDouble("latitude", curLatitude);
+                bundle.putDouble("longitude", curLongitude);
                 bundle.putInt("routeId", route.getRouteId());
+
                 intent.putExtras(bundle);
 
                 Log.d(KEY, "routeId : " + route.getRouteId() + ", des : " + route.getDescription());
