@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,12 +32,22 @@ public class JourneyActivity extends AppCompatActivity {
 
     private int userId;
     private String uId;
+    //管理员标识
+    private boolean isAdmin;
     private JourneyResponse response;
+    private Journey curJourney;
 
     //创建攻略
     private Button createJourney;
     //攻略列表
     private RecyclerView journeyList;
+    private LinearLayout makeSureDelete;
+    private Button sureDeleteButton;
+    private Button cancelDeleteButton;
+    private Button checkJourneyButton;
+
+    private boolean isShow;
+
 
     private static final String KEY = "journeyActivity";
 
@@ -51,12 +62,19 @@ public class JourneyActivity extends AppCompatActivity {
         createJourney = (Button) findViewById(R.id.create_journey);
         journeyList = (RecyclerView) findViewById(R.id.journey_name_list);
         journeyList.setLayoutManager(new LinearLayoutManager(JourneyActivity.this));
+        makeSureDelete = (LinearLayout) findViewById(R.id.make_sure_delete_journey);
+        sureDeleteButton = (Button) findViewById(R.id.sure_delete_journey);
+        cancelDeleteButton = (Button) findViewById(R.id.cancel_delete_journey);
+        makeSureDelete.setVisibility(View.GONE);
+        checkJourneyButton = (Button) findViewById(R.id.check_journey);
+        isShow = false;
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         userId = bundle.getInt("userId");
         uId = bundle.getString("uId");
-        Log.d(KEY, "userId : " + userId + ", uId : " + uId);
+        isAdmin = bundle.getBoolean("isAdmin");
+        Log.d(KEY, "userId : " + userId + ", uId : " + uId + ", isAdmin : " + isAdmin);
         response = new JourneyResponse();
 
         //创建攻略按钮点击
@@ -72,13 +90,79 @@ public class JourneyActivity extends AppCompatActivity {
             }
         });
 
+        //确认删除攻略
+        sureDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteJourney();
+            }
+        });
+
+        //取消删除攻略
+        cancelDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeSureDelete.setVisibility(View.GONE);
+                curJourney = null;
+            }
+        });
+
+        //管理员查看攻略
+        checkJourneyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(JourneyActivity.this, JourneyDetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("journey", curJourney);
+                bundle.putLong("createTime", curJourney.getCreateTime().getTime());
+                bundle.putInt("userId", userId);
+                bundle.putBoolean("isAdmin", isAdmin);
+                intent.putExtras(bundle);
+
+                startActivityForResult(intent, JOURNEY_DETAIL);
+            }
+        });
+
         updateJourneyList();
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (isShow) {
+            makeSureDelete.setVisibility(View.GONE);
+            isShow = false;
+        } else {
+            finish();
+        }
+
+    }
+
+    //删除攻略
+    private void deleteJourney() {
+        ThreadJourney thread = new ThreadJourney("deleteJourneyByCondition", curJourney);
+        thread.start();
+
+        try {
+            thread.join();
+
+            if(thread.getIsSuccess()) {
+                Log.d(KEY, "删除攻略成功，更新攻略列表");
+                updateJourneyList();
+                makeSureDelete.setVisibility(View.GONE);
+                isShow = false;
+            } else {
+                Log.d(KEY, response.getMessage());
+                Toast.makeText(JourneyActivity.this, response.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.d(KEY , e.toString());
+        }
+    }
+
     //更新journeyList
     private void updateJourneyList() {
-        ThreadJourney thread = new ThreadJourney("findJourneyByCondition");
+        ThreadJourney thread = new ThreadJourney("findJourneyByCondition", null);
         thread.start();
 
         try {
@@ -143,14 +227,21 @@ public class JourneyActivity extends AppCompatActivity {
         public void onClick(View view) {
             Log.d("holder", "begin click");
 
-            Intent intent = new Intent(JourneyActivity.this, JourneyDetailActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("journey", journey);
-            bundle.putLong("createTime", journey.getCreateTime().getTime());
-            bundle.putInt("userId", userId);
-            intent.putExtras(bundle);
+            if(!isAdmin) {
+                Intent intent = new Intent(JourneyActivity.this, JourneyDetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("journey", journey);
+                bundle.putLong("createTime", journey.getCreateTime().getTime());
+                bundle.putInt("userId", userId);
+                intent.putExtras(bundle);
 
-            startActivityForResult(intent, JOURNEY_DETAIL);
+                startActivityForResult(intent, JOURNEY_DETAIL);
+            } else {
+                curJourney = journey;
+                makeSureDelete.setVisibility(View.VISIBLE);
+                isShow = true;
+            }
+
         }
 
     }
@@ -192,6 +283,8 @@ public class JourneyActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(KEY, "request : " + requestCode + " result : " + resultCode);
+        makeSureDelete.setVisibility(View.GONE);
+        isShow = false;
         if(RESULT_OK == resultCode) {
             if(CREATE_JOURNEY == requestCode || JOURNEY_DETAIL == requestCode) {
                 Log.d(KEY, "journey onActivityResult");
@@ -209,21 +302,27 @@ public class JourneyActivity extends AppCompatActivity {
 
         private String url;
 
-        public ThreadJourney(String url) {
+        private Journey mJourney;
+
+        public ThreadJourney(String url, Journey journey) {
             this.url = url;
+            this.mJourney = journey;
         }
 
         @Override
         public void run() {
             try {
 
-                Journey journey = new Journey();
-                journey.setUserId(userId);
-                journey.setDesId(uId);
+                if(mJourney == null) {
+                    mJourney = new Journey();
+                    mJourney.setUserId(userId);
+                    mJourney.setDesId(uId);
+                }
 
-                Log.d(KEY, "begin http connect " + journey.toString());
 
-                byte[] data = HttpUtil.readJourneyParse(url , journey);
+                Log.d(KEY, "begin http connect " + mJourney.toString());
+
+                byte[] data = HttpUtil.readJourneyParse(url , mJourney);
                 String str = new String(data);
                 JSONObject jsonObject = new JSONObject(str);
 
@@ -231,22 +330,25 @@ public class JourneyActivity extends AppCompatActivity {
                 if(response != null && response.getMessage().compareTo("success!") == 0) {
                     Log.d(KEY, url + " get data from server success!");
                     isSuccess = true;
-                    JSONArray jsonArray =new JSONArray(jsonObject.getString("journeyList"));
 
-                    response.getJourneyList().clear();
+                    if(jsonObject.getString("journeyList") != null) {
+                        JSONArray jsonArray =new JSONArray(jsonObject.getString("journeyList"));
 
-                    for(int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        Journey jNode = new Journey();
-                        jNode.setDesId(object.getString("desId"));
-                        jNode.setUserId(object.getInt("userId"));
-                        jNode.setAgree(object.getInt("agree"));
-                        jNode.setCreateTime(new Date(object.getLong("createTime")));
-                        jNode.setDetail(object.getString("detail"));
-                        jNode.setTitle(object.getString("title"));
-                        jNode.setId(object.getInt("id"));
+                        response.getJourneyList().clear();
 
-                        response.addJourney(jNode);
+                        for(int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject object = jsonArray.getJSONObject(i);
+                            Journey jNode = new Journey();
+                            jNode.setDesId(object.getString("desId"));
+                            jNode.setUserId(object.getInt("userId"));
+                            jNode.setAgree(object.getInt("agree"));
+                            jNode.setCreateTime(new Date(object.getLong("createTime")));
+                            jNode.setDetail(object.getString("detail"));
+                            jNode.setTitle(object.getString("title"));
+                            jNode.setId(object.getInt("id"));
+
+                            response.addJourney(jNode);
+                        }
                     }
 
                     Log.d(KEY, response.toString());
@@ -261,4 +363,5 @@ public class JourneyActivity extends AppCompatActivity {
             }
         }
     }
+
 }

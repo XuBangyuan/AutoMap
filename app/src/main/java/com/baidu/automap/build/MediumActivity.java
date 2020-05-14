@@ -40,8 +40,6 @@ public class MediumActivity extends AppCompatActivity {
     private String uId;
 
     private RecyclerView mediumList;
-    private TextView warnText;
-
     private String path;
 
     private Mp3Response response;
@@ -56,7 +54,7 @@ public class MediumActivity extends AppCompatActivity {
 
     protected void onDestroy() {
         super.onDestroy();
-        /* 释放MeidaPlayer 对象 */
+        //  释放MediaPlayer 对象
         if(mediaPlayer != null) {
             mediaPlayer.release();
         }
@@ -70,8 +68,6 @@ public class MediumActivity extends AppCompatActivity {
 
         mediumList = (RecyclerView) findViewById(R.id.medium_list);
         mediumList.setLayoutManager(new LinearLayoutManager(this));
-        warnText = (TextView) findViewById(R.id.warn_message);
-        warnText.setVisibility(View.GONE);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -358,7 +354,6 @@ public class MediumActivity extends AppCompatActivity {
 
     public void startMedium() {
         if(change) {
-//            Toast.makeText(MediumActivity.this, "正在获取资源，请稍等", Toast.LENGTH_LONG).show();
 
             updateMedium();
 
@@ -387,7 +382,7 @@ public class MediumActivity extends AppCompatActivity {
                 mediaPlayer.pause();
             }
 
-            /* 获得MeidaPlayer对象 */
+            /* 获得MediaPlayer对象 */
             mediaPlayer = new MediaPlayer();
 
             /* 得到文件路径 *//* 注：文件存放在SD卡的根目录，一定要进行prepare()方法，使硬件进行准备 */
@@ -411,8 +406,6 @@ public class MediumActivity extends AppCompatActivity {
 
     public void pauseMedium() {
         if(change) {
-            Toast.makeText(MediumActivity.this, "正在获取资源，请稍等", Toast.LENGTH_LONG).show();
-
             updateMedium();
 
             File file = new File(path + "/" + curMp3.getName() + ".mp3");
@@ -440,7 +433,7 @@ public class MediumActivity extends AppCompatActivity {
                 mediaPlayer.pause();
             }
 
-            /* 获得MeidaPlayer对象 */
+            /* 获得MediaPlayer对象 */
             mediaPlayer = new MediaPlayer();
 
             /* 得到文件路径 *//* 注：文件存放在SD卡的根目录，一定要进行prepare()方法，使硬件进行准备 */
@@ -463,20 +456,27 @@ public class MediumActivity extends AppCompatActivity {
     }
 
     public void updateMedium() {
-        Mp3Entity entity = new Mp3Entity();
-        entity.setId(curMp3.getId());
-        ThreadGetMedium thread = new ThreadGetMedium(entity, "findMediumById");
-        thread.start();
 
-        try {
-            thread.join();
+        File file = new File(path + "/" + curMp3.getName() + ".mp3");
+        if (!file.exists()) {
+            Mp3Entity entity = new Mp3Entity();
+            entity.setId(curMp3.getId());
+            ThreadGetMedium thread = new ThreadGetMedium(entity, "findMediumById");
+            thread.start();
 
-            if(!thread.isSuccess) {
-                Toast.makeText(MediumActivity.this, "获取失败，请稍后再试", Toast.LENGTH_SHORT).show();
+            try {
+                thread.join();
+
+                if(!thread.isSuccess) {
+                    Toast.makeText(MediumActivity.this, "获取失败，请稍后再试", Toast.LENGTH_SHORT).show();
+                }
+            } catch (InterruptedException e) {
+                Log.d(KEY, e.toString());
             }
-        } catch (InterruptedException e) {
-            Log.d(KEY, e.toString());
         }
+
+
+
 //        warnText.setVisibility(View.GONE);
     }
 

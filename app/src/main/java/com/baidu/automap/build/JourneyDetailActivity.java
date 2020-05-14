@@ -44,10 +44,16 @@ public class JourneyDetailActivity extends AppCompatActivity {
     private Button sureButton;
     private Button cancelButton;
     private RecyclerView commentList;
+    private LinearLayout makeSureDelete;
+    private Button sureDelete;
+    private Button cancelDelete;
 
     private int curUserId;
     private Journey curJourney;
     private CommentResponse response;
+    private boolean isAdmin;
+    private Comment curComment;
+    private boolean isShow;
 
     private static final String KEY = "journeyDetailActivity";
 
@@ -72,11 +78,17 @@ public class JourneyDetailActivity extends AppCompatActivity {
         makeSureLayout.setVisibility(View.GONE);
         commentList = (RecyclerView)findViewById(R.id.comment_list);
         commentList.setLayoutManager(new LinearLayoutManager(JourneyDetailActivity.this));
+        makeSureDelete = (LinearLayout) findViewById(R.id.make_sure_delete_comment);
+        sureDelete = (Button) findViewById(R.id.sure_delete_comment);
+        cancelDelete = (Button) findViewById(R.id.cancel_delete_comment);
+        makeSureDelete.setVisibility(View.GONE);
+        isShow = false;
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         curJourney = bundle.getParcelable("journey");
         curUserId = bundle.getInt("userId");
+        isAdmin = bundle.getBoolean("isAdmin");
         curJourney.setCreateTime(new Date(bundle.getLong("createTime")));
         Log.d(KEY, "curUserId " + curUserId + ", " + curJourney.toString());
         response = new CommentResponse();
@@ -90,6 +102,25 @@ public class JourneyDetailActivity extends AppCompatActivity {
 
         updateCommentList();
 
+        //确认删除评论
+        sureDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteComment();
+                makeSureDelete.setVisibility(View.GONE);
+                isShow = false;
+            }
+        });
+
+        //取消删除评论
+        cancelDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeSureDelete.setVisibility(View.GONE);
+                isShow = false;
+            }
+        });
+
         //创建评论按钮点击
         createComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,6 +129,7 @@ public class JourneyDetailActivity extends AppCompatActivity {
                 commentEdit.setVisibility(View.VISIBLE);
                 makeSureLayout.setVisibility(View.VISIBLE);
                 createComment.setVisibility(View.GONE);
+                isShow = true;
             }
         });
 
@@ -139,6 +171,7 @@ public class JourneyDetailActivity extends AppCompatActivity {
                     commentEdit.setVisibility(View.GONE);
                     makeSureLayout.setVisibility(View.GONE);
                     createComment.setVisibility(View.VISIBLE);
+                    isShow = false;
                 }
 
             }
@@ -151,6 +184,7 @@ public class JourneyDetailActivity extends AppCompatActivity {
                 commentEdit.setVisibility(View.GONE);
                 makeSureLayout.setVisibility(View.GONE);
                 createComment.setVisibility(View.VISIBLE);
+                isShow = false;
             }
         });
 
@@ -189,9 +223,44 @@ public class JourneyDetailActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if(isShow) {
+            commentEdit.setVisibility(View.GONE);
+            makeSureLayout.setVisibility(View.GONE);
+            createComment.setVisibility(View.VISIBLE);
+            makeSureDelete.setVisibility(View.GONE);
+            isShow = false;
+        } else {
+            finish();
+        }
+
+    }
+
+    private void deleteComment() {
+        ThreadUpdateCommentList thread = new ThreadUpdateCommentList("deleteCommentByCondition", curComment);
+        thread.start();
+
+        try {
+            thread.join();
+
+            if(thread.getIsSuccess()) {
+                Log.d(KEY, "删除评论成功");
+                updateCommentList();
+                Toast.makeText(JourneyDetailActivity.this, "删除评论成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d(KEY, response.getMessage());
+                Toast.makeText(JourneyDetailActivity.this, response.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (InterruptedException e) {
+            Log.e(KEY, e.toString());
+        }
+    }
+
     //更新commentList
     private void updateCommentList() {
-        ThreadUpdateCommentList thread = new ThreadUpdateCommentList("findCommentByCondition");
+        ThreadUpdateCommentList thread = new ThreadUpdateCommentList("findCommentByCondition", null);
         thread.start();
 
         try {
@@ -304,26 +373,32 @@ public class JourneyDetailActivity extends AppCompatActivity {
     private class ThreadUpdateCommentList extends Thread {
         private boolean isSuccess;
 
+        private Comment mComment;
+
         public boolean getIsSuccess() {
             return isSuccess;
         }
 
         private String url;
 
-        public ThreadUpdateCommentList(String url) {
+        public ThreadUpdateCommentList(String url, Comment comment) {
             this.url = url;
+            this.mComment = comment;
         }
 
         @Override
         public void run() {
             try {
 
-                Comment comment = new Comment();
-                comment.setJourneyId(curJourney.getId());
+                if(mComment == null) {
+                    mComment = new Comment();
+                    mComment.setJourneyId(curJourney.getId());
+                }
 
-                Log.d(KEY, "begin http connect " + comment.toString());
 
-                byte[] data = HttpUtil.readCommentParse(url , comment);
+                Log.d(KEY, "begin http connect " + mComment.toString());
+
+                byte[] data = HttpUtil.readCommentParse(url , mComment);
                 String str = new String(data);
                 JSONObject jsonObject = new JSONObject(str);
 
@@ -331,21 +406,24 @@ public class JourneyDetailActivity extends AppCompatActivity {
                 if(response != null && response.getMessage().compareTo("success!") == 0) {
                     Log.d(KEY, url + " get data from server success!");
                     isSuccess = true;
-                    JSONArray jsonArray =new JSONArray(jsonObject.getString("commentList"));
 
-                    response.getCommentList().clear();
+                    if(jsonObject.getString("commentList") != null) {
+                        JSONArray jsonArray =new JSONArray(jsonObject.getString("commentList"));
 
-                    for(int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        Comment cNode = new Comment();
-                        cNode.setJourneyId(object.getInt("journeyId"));
-                        cNode.setUserId(object.getInt("userId"));
-                        cNode.setAgree(object.getInt("agree"));
-                        cNode.setCreateTime(new Date(object.getLong("createTime")));
-                        cNode.setDetail(object.getString("detail"));
-                        cNode.setId(object.getInt("id"));
+                        response.getCommentList().clear();
 
-                        response.addComment(cNode);
+                        for(int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject object = jsonArray.getJSONObject(i);
+                            Comment cNode = new Comment();
+                            cNode.setJourneyId(object.getInt("journeyId"));
+                            cNode.setUserId(object.getInt("userId"));
+                            cNode.setAgree(object.getInt("agree"));
+                            cNode.setCreateTime(new Date(object.getLong("createTime")));
+                            cNode.setDetail(object.getString("detail"));
+                            cNode.setId(object.getInt("id"));
+
+                            response.addComment(cNode);
+                        }
                     }
 
                     Log.d(KEY, response.toString());
@@ -406,29 +484,36 @@ public class JourneyDetailActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             Log.d("holder", "begin click");
-            Comment comment = new Comment();
-            comment.setId(this.comment.getId());
-            comment.setUserId(curUserId);
 
-            ThreadCreateComment threadCreateComment = new ThreadCreateComment("addAgree", comment);
-            threadCreateComment.start();
+            if (isAdmin) {
+                curComment = comment;
+                makeSureDelete.setVisibility(View.VISIBLE);
+                isShow = true;
+            } else  {
+                Comment comment = new Comment();
+                comment.setId(this.comment.getId());
+                comment.setUserId(curUserId);
 
-            try {
-                threadCreateComment.join();
+                ThreadCreateComment threadCreateComment = new ThreadCreateComment("addAgree", comment);
+                threadCreateComment.start();
 
-                if(threadCreateComment.getIsSuccess()) {
-                    Log.d(KEY, "addAgree success");
-                    this.comment.setAgree(this.comment.getAgree() + 1);
-                    agree.setText("赞 ：" + this.comment.getAgree() + "");
+                try {
+                    threadCreateComment.join();
 
-                    Toast.makeText(JourneyDetailActivity.this, "点赞成功", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d(KEY, threadCreateComment.getResponse().getMessage());
-                    Toast.makeText(JourneyDetailActivity.this, threadCreateComment.getResponse().getMessage(), Toast.LENGTH_SHORT).show();
+                    if(threadCreateComment.getIsSuccess()) {
+                        Log.d(KEY, "addAgree success");
+                        this.comment.setAgree(this.comment.getAgree() + 1);
+                        agree.setText("赞 ：" + this.comment.getAgree() + "");
 
+                        Toast.makeText(JourneyDetailActivity.this, "点赞成功", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.d(KEY, threadCreateComment.getResponse().getMessage());
+                        Toast.makeText(JourneyDetailActivity.this, threadCreateComment.getResponse().getMessage(), Toast.LENGTH_SHORT).show();
+
+                    }
+                } catch (InterruptedException e) {
+                    Log.d(KEY, e.toString());
                 }
-            } catch (InterruptedException e) {
-                Log.d(KEY, e.toString());
             }
 
         }

@@ -76,6 +76,7 @@ public class BuildDetailActivity extends AppCompatActivity {
                 Intent intent1 = new Intent(BuildDetailActivity.this, JourneyActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("uId", introduction.getuId());
+                bundle.putBoolean("isAdmin", isAdmin);
                 bundle.putInt("userId", userId);
                 intent1.putExtras(bundle);
                 startActivityForResult(intent1, JOURNEY_DETAIL);

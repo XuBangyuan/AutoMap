@@ -104,6 +104,8 @@ public class SigninActivity extends AppCompatActivity {
                     }
 
                     if(thread.getIsSuccess()) {
+                        signinButton.setVisibility(View.GONE);
+                        loginButton.setVisibility(View.GONE);
                         if(curUser.getAdministrator()) {
                             choiceLayout.setVisibility(View.VISIBLE);
                         } else {
