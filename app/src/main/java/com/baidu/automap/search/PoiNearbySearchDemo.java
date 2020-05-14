@@ -69,13 +69,15 @@ public class PoiNearbySearchDemo extends AppCompatActivity implements OnGetPoiSe
     private CheckBox mLimitCB;
     private CheckBox mScopeCB;
 
-    private BitmapDescriptor mBitmap = BitmapDescriptorFactory.fromResource(R.drawable.icon_marka);
+    private BitmapDescriptor mBitmap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_poinearbysearch);
+
+        mBitmap = BitmapDescriptorFactory.fromResource(R.drawable.icon_marka);
 
         // 创建map
         mMapView = (MapView) findViewById(R.id.bmapView);

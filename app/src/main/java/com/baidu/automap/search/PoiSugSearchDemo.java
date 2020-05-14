@@ -95,6 +95,7 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
 
                 // 使用建议搜索服务获取建议列表，结果在onSuggestionResult()中更新
                 mSuggestionSearch.requestSuggestion((new SuggestionSearchOption())
+                        .citylimit(true)
                         .keyword(cs.toString()) // 关键字
                         .city(mEditCity.getText().toString())); // 城市
             }
