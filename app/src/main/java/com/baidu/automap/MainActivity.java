@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
 
     //当前定位地点
     private BDLocation curLocation = null;
+    private LatLng center;
     //导航起点
     private LatLng startNode = null;
     //导航终点
@@ -152,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
 
 
     private static final String KEY = "mainActivity";
+    private static pageState curState;
     private static boolean isBack = false;
     private static boolean isOverlay = false;
 
@@ -279,10 +281,15 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                     return;
                 }
 
-                /* 使用建议搜索服务获取建议列表，结果在onSuggestionResult()中更新 */
-                mSuggestionSearch.requestSuggestion((new SuggestionSearchOption())
-                        .keyword(cs.toString())
-                        .city(curLocation.getCity()));
+                try {
+                    /* 使用建议搜索服务获取建议列表，结果在onSuggestionResult()中更新 */
+                    mSuggestionSearch.requestSuggestion((new SuggestionSearchOption())
+                            .keyword(cs.toString())
+                            .city(curLocation.getCity()));
+                } catch (Exception e) {
+                    Log.e(KEY, e.toString());
+                }
+
             }
         });
 
@@ -306,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 if(keyWord == null || keyWord.length() == 0) {
                     Toast.makeText(MainActivity.this, "请输入搜索内容", Toast.LENGTH_SHORT).show();
                 } else {
+                    curState = pageState.NEARBY;
                     briedIntroductionLinear.setVisibility(View.GONE);
                     nearbySearchLayout.setVisibility(View.GONE);
                     searchNearbyProcess();
@@ -385,7 +393,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("mainActivity", "searchButton onclick, curCity : " + curLocation.getCity());
+//                Log.d("mainActivity", "searchButton onclick, curCity : " + curLocation.getCity());
                 clearPage();
                 Intent intent = new Intent(MainActivity.this, PoiSugSearchDemo.class);
                 Bundle bundle = new Bundle();
@@ -464,6 +472,37 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         mLocationClient.registerLocationListener(myLocationListener);
         //开启地图定位图层
         mLocationClient.start();
+    }
+
+    private void changePage() {
+        switch (curState) {
+            case START:
+                mBaiduMap.clear();
+                poiSearchLayout.setVisibility(View.VISIBLE);
+                nearbySearchLayout.setVisibility(View.GONE);
+                briedIntroductionLinear.setVisibility(View.GONE);
+                routePlanButton.setVisibility(View.VISIBLE);
+                isBack = false;
+                break;
+            case BRIEF:
+                mBaiduMap.clear();
+                poiSearchLayout.setVisibility(View.VISIBLE);
+                nearbySearchLayout.setVisibility(View.GONE);
+                briedIntroductionLinear.setVisibility(View.VISIBLE);
+                break;
+            case NEARBY:
+                mBaiduMap.clear();
+                poiSearchLayout.setVisibility(View.GONE);
+                nearbySearchLayout.setVisibility(View.VISIBLE);
+                briedIntroductionLinear.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    private enum pageState {
+        START,
+        BRIEF,
+        NEARBY
     }
 
     /**
@@ -571,7 +610,9 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 .radius(radius);
 
         mBaiduMap.addOverlay(ooCircle);
-        isOverlay = true;
+        curState = pageState.START;
+        isBack = true;
+//        isOverlay = true;
     }
 
     private class MyPoiOverlay extends PoiOverlay {
@@ -625,6 +666,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                 return;
             }
 
+
             for (int i = 0; i < poiDetailInfoList.size(); i++) {
                 // 获取详情检索结果
                 PoiDetailInfo poiDetailInfo = poiDetailInfoList.get(i);
@@ -669,6 +711,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         curPoiRouteNode.setlongitude(poiDetailInfo.getLocation().longitude);
 
         isBack = true;
+        curState = pageState.START;
         briedIntroductionLinear.setVisibility(View.VISIBLE);
         routePlanButton.setVisibility(View.GONE);
     }
@@ -687,20 +730,27 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     public void onBackPressed() {
         Log.d(KEY, "back pressed!");
 
-        if(isOverlay) {
-            mBaiduMap.clear();
-            searchButton.setVisibility(View.VISIBLE);
+        if(isBack) {
+            changePage();
+        } else {
+            finish();
         }
 
-        if (isBack) {
-//            briedIntroductionLinear.setZ(0.f);
-            briedIntroductionLinear.setVisibility(View.GONE);
-            routePlanButton.setVisibility(View.VISIBLE);
-            isBack = false;
-            return;
-        }
+//        if(isOverlay) {
+//            mBaiduMap.clear();
+//            poiSearchLayout.setVisibility(View.VISIBLE);
+//            isOverlay = false;
+//            return;
+//        }
+//
+//        if (isBack) {
+//            briedIntroductionLinear.setVisibility(View.GONE);
+//            routePlanButton.setVisibility(View.VISIBLE);
+//            isBack = false;
+//            return;
+//        }
 
-        finish();
+//        finish();
     }
 
     @Override
@@ -736,8 +786,10 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             if(POI_SUG == requestCode) {
                 Log.d(KEY, "poi_sug onActivityResult");
                 ResultEntity resultEntity = (ResultEntity) data.getSerializableExtra("result");
-                Log.d(KEY, ((ResultEntity)data.getSerializableExtra("result")).getCity() + " result");
+//                Log.d(KEY, ((ResultEntity)data.getSerializableExtra("result")).getCity() + " result");
                 LatLng latLng = new LatLng(resultEntity.getLatitude(), resultEntity.getLongitude());
+
+                mPoiSearch.searchPoiDetail(new PoiDetailSearchOption().poiUids(resultEntity.getuId()));
                 navigateTo(latLng);
                 createMarker(resultEntity);
             } else if(ROUTE_PLAN == requestCode){
@@ -816,6 +868,9 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
 
     private void createMarker(ResultEntity resultEntity) {
         mBaiduMap.clear();
+//        isOverlay = true;
+        isBack = true;
+        curState = pageState.START;
         //构建Marker图标
         LatLng point = new LatLng(resultEntity.getLatitude(), resultEntity.getLongitude());
         BitmapDescriptor bitmap = BitmapDescriptorFactory
@@ -845,14 +900,14 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     public class MyLocationListener extends BDAbstractLocationListener {
         @Override
         public void onReceiveLocation(BDLocation location) {
-            Log.d("listener", "execute listener");
+            Log.d(KEY, "listener " + "execute listener");
 
             //mapView 销毁后不在处理新接收的位置
             if (location == null || mMapView == null){
-                Log.d("location", "location == null");
+                Log.d(KEY, "location " + "location == null");
                 return;
             }
-            Log.d("location data", location.getLatitude() + ", " + location.getLongitude());
+            Log.d(KEY, "location data " + location.getLatitude() + ", " + location.getLongitude());
             MyLocationData locData = new MyLocationData.Builder()
                     .accuracy(location.getRadius())
                     // 此处设置开发者获取到的方向信息，顺时针0-360
@@ -860,15 +915,11 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
                     .longitude(location.getLongitude()).build();
             mBaiduMap.setMyLocationData(locData);
 
-            Log.d("network", location.getLocTypeDescription());
-            Log.d("location", location.getLatitude() + ", " + location.getLongitude());
+            Log.d(KEY, location.getLocTypeDescription());
 
-//            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//            MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(latLng);
-//            mBaiduMap.animateMapStatus(update);
-//            update = MapStatusUpdateFactory.zoomTo(16f);
-//            mBaiduMap.animateMapStatus(update);
             curLocation = location;
+            center = new LatLng(location.getLatitude(), location.getLongitude());
+            Log.d(KEY, curLocation.getCity() + ", " + curLocation.getLatitude() + ", " + curLocation.getLongitude());
 
             if(isFirstLocate) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());

@@ -67,6 +67,7 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
         mEditCity = (EditText) findViewById(R.id.city);
         String city = bundle.getString("city");
         mEditCity.setText(city);
+        Log.d(KEY, city);
 
         mResultRecyclerView = (RecyclerView) findViewById(R.id.sug_recycler_list);
 
@@ -122,7 +123,8 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
 //        List<HashMap<String, String>> suggest = new ArrayList<>();
         List<ResultEntity> suggest = new ArrayList<>();
         for (SuggestionResult.SuggestionInfo info : suggestionResult.getAllSuggestions()) {
-            if (info.getKey() != null && info.getDistrict() != null && info.getCity() != null) {
+            if (info.getKey() != null && info.getDistrict() != null && info.getCity() != null
+            && info.getPt() != null) {
 
                 ResultEntity resultEntity = new ResultEntity(info.getUid(), info.getKey(), info.getCity(),
                         info.getDistrict(), info.getPt().latitude, info.getPt().longitude);
