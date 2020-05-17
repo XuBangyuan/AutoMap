@@ -30,7 +30,7 @@
 
         <activity android:name=".search.PoiDetailSearchDemo"
             android:launchMode="standard"/>
-        <activity android:name=".searchroute.WalkingRouteSearchDemo"
+        <activity android:name=".searchroute.BikingRouteSearch"
             android:launchMode="standard"/>
         <activity android:name=".search.PoiSugSearchDemo"
             android:launchMode="standard"/>
@@ -48,6 +48,7 @@
         <activity android:name=".build.JourneyDetailActivity"/>
         <activity android:name=".build.CreateJourneyActivity"/>
         <activity android:name=".build.MediumActivity"/>
+        <activity android:name=".searchroute.WalkingRouteSearch"/>
 
 
         <meta-data

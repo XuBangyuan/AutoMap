@@ -27,8 +27,9 @@ import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.response.RouteNodeResponse;
 import com.baidu.automap.search.PoiOverlay;
 import com.baidu.automap.search.PoiSugSearchDemo;
+import com.baidu.automap.searchroute.BikingRouteSearch;
 import com.baidu.automap.searchroute.RoutePlanActivity;
-import com.baidu.automap.searchroute.WalkingRouteSearchDemo;
+import com.baidu.automap.searchroute.WalkingRouteSearch;
 import com.baidu.automap.util.HttpUtil;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
@@ -109,6 +110,9 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     private Button buildGuildButton = null;
     //路线规划按钮
     private Button routePlanButton = null;
+    private LinearLayout guideChoice;
+    private Button walkingGuide;
+    private Button bikingGuide;
     //周边搜索
     private LinearLayout nearbySearchLayout;
     private AutoCompleteTextView nearbySearchText;
@@ -130,8 +134,8 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     private Integer userId;
     private Boolean isAdministrator;
 
-    //步行导航
-    private static final int WALKING_ROUTE = 2;
+    private static final int BIKING_ROUTE = 4;
+    private static final int WALKING_ROUTE = 3;
     private static final int POI_SUG_SINGLE = 1;
     private static final int POI_SUG_LIST = 2;
 
@@ -232,6 +236,11 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         nearbySearchText = (AutoCompleteTextView) findViewById(R.id.nearby_search_text);
         nearbySearchButton = (Button) findViewById(R.id.nearby_search_button);
         nearbySearchLayout.setVisibility(View.GONE);
+        guideChoice = (LinearLayout) findViewById(R.id.guide_choice);
+        walkingGuide = (Button) findViewById(R.id.walking_guide);
+        bikingGuide = (Button) findViewById(R.id.biking_guide);
+        guideChoice.setVisibility(View.GONE);
+
 
         curPoiRouteNode = new RouteNode();
 
@@ -297,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         briedIntroductionLinear.setVisibility(View.GONE);
         poiSearchLayout.setZ(4.f);
         briedIntroductionLinear.setZ(5.f);
+        guideChoice.setZ(5.f);
 
         //注册广播
         IntentFilter iFilter = new IntentFilter();
@@ -410,8 +420,25 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             @Override
             public void onClick(View v) {
                 Log.d(KEY, "build_guild_button onclick");
+                guideChoice.setVisibility(View.VISIBLE);
                 startNode = new LatLng(curLocation.getLatitude(), curLocation.getLongitude());
-                routeSearchBegin();
+//                routeSearchBegin();
+            }
+        });
+
+        bikingGuide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                routeSearchBegin(BIKING_ROUTE);
+                guideChoice.setVisibility(View.GONE);
+            }
+        });
+
+        walkingGuide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                routeSearchBegin(WALKING_ROUTE);
+                guideChoice.setVisibility(View.GONE);
             }
         });
 
@@ -541,9 +568,14 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
      * 开始导航
      * @param
      */
-    public void routeSearchBegin() {
-
-        Intent intent = new Intent(MainActivity.this, WalkingRouteSearchDemo.class);
+    public void routeSearchBegin(int choice) {
+        Intent intent;
+        if(choice == WALKING_ROUTE) {
+            intent = new Intent(MainActivity.this, WalkingRouteSearch.class);
+        } else {
+            intent = new Intent(MainActivity.this, BikingRouteSearch.class);
+        }
+//        intent = new Intent(MainActivity.this, WalkingRouteSearch.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable("startNode", startNode);
         bundle.putParcelable("endNode", endNode);

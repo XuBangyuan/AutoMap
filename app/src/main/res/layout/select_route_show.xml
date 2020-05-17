@@ -29,6 +29,30 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <LinearLayout
+        android:id="@+id/guide_choice_select"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="@+id/select_all_node">
+
+        <Button
+            android:id="@+id/walking_guide_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="步行导航"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/biking_guide_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="骑行导航"
+            android:textSize="10dp" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/add_node"
         android:layout_width="0dp"

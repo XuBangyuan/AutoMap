@@ -6,6 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <LinearLayout
+        android:id="@+id/guide_choice"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/brief_introduction"
+        app:layout_constraintEnd_toEndOf="@+id/bmapView"
+        app:layout_constraintStart_toStartOf="@+id/bmapView">
+
+        <Button
+            android:id="@+id/walking_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="步行导航"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/biking_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="骑行导航"
+            android:textSize="10dp" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/route_plan"
         android:layout_width="wrap_content"

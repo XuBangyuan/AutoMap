@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,9 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     private RecyclerView node_list_view;
     private Button addNode;
     private Button beginGuide;
+    private LinearLayout guideChoice;
+    private Button walkGuide;
+    private Button bikeGuide;
 
     private BikeNavigateHelper mNaviHelper;
     BikeNaviLaunchParam param;
@@ -55,17 +59,18 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
     private static String configCity;
     private static int POI_SUG = 1;
-    private static final int BIKE_GUIDE_ACTIVITY = 2;
+    private static final int WALKING_ROUTE = 2;
+    private static final int BIKING_ROUTE = 3;
+
 
     private LatLng startLoc;
     private LatLng endLoc;
     private LatLng curLoc;
     private static final String KEY = "selectRoutePlanActivity";
 
+
     private int curRouteId;
     private RouteNodeResponse curNodeResponse;
-
-    private RoutePlanList curRouteList;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -78,6 +83,11 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.select_route_show);
+
+        guideChoice = (LinearLayout) findViewById(R.id.guide_choice_select);
+        walkGuide = (Button) findViewById(R.id.walking_guide_select);
+        bikeGuide = (Button) findViewById(R.id.biking_guide_select);
+        guideChoice.setVisibility(View.GONE);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -99,8 +109,6 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
         node_list_view = (RecyclerView) findViewById(R.id.select_all_node);
         node_list_view.setLayoutManager(new LinearLayoutManager(this));
         updateRouteNode();
-
-
 
         //新增节点
         addNode.setOnClickListener(new View.OnClickListener() {
@@ -128,23 +136,59 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 } else if(startLoc.latitude == endLoc.latitude && startLoc.longitude == endLoc.longitude) {
                     Toast.makeText(SelectRoutePlanActivity.this, "起点和终点是同一个位置，请重新设定", Toast.LENGTH_LONG).show();
                 } else {
-                    if(!isInit) {
-                        initBikeNavi();
-                    }
-                    Log.d(KEY, "startNode : " + startLoc.latitude + " , " + endLoc.longitude);
-                    Log.d(KEY, "endNode : " + endLoc.latitude + " , " + endLoc.longitude);
 
-                    if(isInitSuccess) {
-                        startBikeNavi();
-                        Log.d(KEY, "bikeNavi finished");
-                        finish();
-                    } else {
-                        Toast.makeText(SelectRoutePlanActivity.this, "导航模块初始化失败", Toast.LENGTH_LONG).show();
-                    }
+                    guideChoice.setVisibility(View.VISIBLE);
+//                    if(!isInit) {
+//                        initBikeNavi();
+//                    }
+//                    Log.d(KEY, "startNode : " + startLoc.latitude + " , " + endLoc.longitude);
+//                    Log.d(KEY, "endNode : " + endLoc.latitude + " , " + endLoc.longitude);
+//
+//                    if(isInitSuccess) {
+//                        startBikeNavi();
+//                        Log.d(KEY, "bikeNavi finished");
+//                        finish();
+//                    } else {
+//                        Toast.makeText(SelectRoutePlanActivity.this, "导航模块初始化失败", Toast.LENGTH_LONG).show();
+//                    }
                 }
             }
         });
 
+        walkGuide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                routeSearchBegin(WALKING_ROUTE);
+                guideChoice.setVisibility(View.GONE);
+            }
+        });
+
+        bikeGuide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                routeSearchBegin(BIKING_ROUTE);
+                guideChoice.setVisibility(View.GONE);
+            }
+        });
+
+    }
+
+    /**
+     * 开始导航
+     * @param
+     */
+    public void routeSearchBegin(int choice) {
+        Intent intent;
+        if(choice == WALKING_ROUTE) {
+            intent = new Intent(SelectRoutePlanActivity.this, WalkingRouteSearch.class);
+        } else {
+            intent = new Intent(SelectRoutePlanActivity.this, BikingRouteSearch.class);
+        }
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("startNode", startLoc);
+        bundle.putParcelable("endNode", endLoc);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     private void addRouteNode(RouteNode routeNode) {
@@ -156,6 +200,8 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
             if(thread.getIsSuccess()) {
                 updateRouteNode();
+            } else {
+                Toast.makeText(SelectRoutePlanActivity.this, thread.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } catch (InterruptedException e) {
             Log.d(KEY, e.toString());
@@ -279,7 +325,11 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
             thread.join();
 
             if(thread.getIsSuccess()) {
+                Log.e(KEY, "thread.success!");
                 refresh();
+            } else {
+                Log.e(KEY, "thread.failed");
+                Toast.makeText(SelectRoutePlanActivity.this, thread.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -355,15 +405,6 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Log.d(KEY, "back pressed!");
-//        if(list != null) {
-//            Intent intent = new Intent();
-//            Bundle bundle = new Bundle();
-//            bundle.putParcelable("route_list", curRouteList);
-//            intent.putExtras(bundle);
-//            setResult(RESULT_OK, intent);
-//        } else {
-//            setResult(RESULT_OK);
-//        }
         setResult(RESULT_OK);
         finish();
     }
@@ -403,48 +444,23 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
         });
     }
 
-    //初始化引擎
-    private void startBikeNavi() {
-        Log.d(KEY, "startBikeNavi");
-        if(startLoc.toString() != null && endLoc.toString() != null) {
-            BikeRouteNodeInfo startNode = new BikeRouteNodeInfo();
-            startNode.setLocation(startLoc);
-            BikeRouteNodeInfo endNode = new BikeRouteNodeInfo();
-            endNode.setLocation(endLoc);
-            param = new BikeNaviLaunchParam().startNodeInfo(startNode).endNodeInfo(endNode).vehicle(1);
-
-        }
-
-        routePlanWithParam();
-    }
-
-    //开始算路
-    private void routePlanWithParam() {
-
-        Log.d(KEY, "begin routePlan");
-
-        mNaviHelper.routePlanWithRouteNode(param, new IBRoutePlanListener() {
+    private void initWalkNavi() {
+        Log.d(KEY, "initBikeNavi");
+        isInit = true;
+        mNaviHelper.initNaviEngine(this, new IBEngineInitListener() {
             @Override
-            public void onRoutePlanStart() {
-                Log.d(KEY, "onRoutePlanStart");
+            public void engineInitSuccess() {
+                Log.d(KEY, "engineInitSuccess");
+                isInitSuccess = true;
             }
 
             @Override
-            public void onRoutePlanSuccess() {
-                Log.d(KEY, "onRoutePlanSuccess");
-                Intent intent = new Intent();
-                intent.setClass(SelectRoutePlanActivity.this, BNaviGuideActivity.class);
-                startActivityForResult(intent, BIKE_GUIDE_ACTIVITY);
+            public void engineInitFail() {
+                Log.d("View", "engineInitFail");
             }
-
-            @Override
-            public void onRoutePlanFail(BikeRoutePlanError error) {
-                Log.d(KEY, "onRoutePlanFail");
-            }
-
-
         });
     }
+
 
 
     @Override
@@ -468,8 +484,10 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 routeNode.setDesId(resultEntity.getuId());
 
                 addRouteNode(routeNode);
-            } else if(BIKE_GUIDE_ACTIVITY == requestCode) {
+            } else if(BIKING_ROUTE == requestCode) {
                 Log.d(KEY, "finish bikeNavi");
+                finish();
+            } else {
                 finish();
             }
         }

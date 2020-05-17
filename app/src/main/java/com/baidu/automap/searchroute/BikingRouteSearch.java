@@ -1,6 +1,3 @@
-/*
- * Copyright (C) 2016 Baidu, Inc. All Rights Reserved.
- */
 package com.baidu.automap.searchroute;
 
 import android.app.AlertDialog;
@@ -14,16 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
-import com.baidu.automap.MainActivity;
 import com.baidu.automap.R;
-import com.baidu.automap.entity.ResultEntity;
-import com.baidu.automap.entity.RoutePlanNode;
 import com.baidu.automap.navi.BNaviGuideActivity;
-import com.baidu.automap.navi.DemoGuideActivity;
-import com.baidu.automap.navi.DemoNaviActivity;
-import com.baidu.automap.navi.GuideActivity;
-import com.baidu.automap.navi.WNaviGuideActivity;
 import com.baidu.automap.overlayUtil.WalkingRouteOverlay;
 import com.baidu.automap.search.OverlayManager;
 import com.baidu.mapapi.bikenavi.BikeNavigateHelper;
@@ -52,17 +41,13 @@ import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.TransitRouteResult;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import com.baidu.mapapi.search.route.WalkingRouteResult;
-import com.baidu.mapapi.walknavi.WalkNavigateHelper;
-import com.baidu.mapapi.walknavi.adapter.IWEngineInitListener;
-import com.baidu.mapapi.walknavi.adapter.IWRoutePlanListener;
-import com.baidu.mapapi.walknavi.model.WalkRoutePlanError;
 import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam;
 
 /**
  * 此demo用来展示如何进行步行路线规划并在地图使用RouteOverlay绘制
  * 同时展示如何进行节点浏览并弹出泡泡
  */
-public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMap.OnMapClickListener,
+public class BikingRouteSearch extends AppCompatActivity implements BaiduMap.OnMapClickListener,
         OnGetRoutePlanResultListener, OnGetGeoCoderResultListener {
 
     // 浏览路线节点相关
@@ -136,43 +121,9 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
         startGuide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(WalkingRouteSearchDemo.this, GuideActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putParcelable("startNode", startLoc);
-//                bundle.putParcelable("endNode", endLoc);
-//                bundle.putString("city", curCity);
-//                intent.putExtras(bundle);
-//                //Log.d("mainActivity", bundle.getString("city"));
-//                startActivity(intent);
                 startBikeNavi();
             }
         });
-
-//        //获取WalkNavigateHelper实例
-//        mNaviHelper = WalkNavigateHelper.getInstance();
-//        //获取诱导页面地图展示View
-//        View view = mNaviHelper.onCreate(WalkingRouteSearchDemo.this);
-//        if (view != null) {
-//            setContentView(view);
-//        }
-
-//        // 获取导航控制类
-//        // 引擎初始化
-//        WalkNavigateHelper.getInstance().initNaviEngine(this, new IWEngineInitListener() {
-//
-//            @Override
-//            public void engineInitSuccess() {
-//                //引擎初始化成功的回调
-//                Log.d(KEY, "engineInitSuccess");
-//                routeWalkPlanWithParam();
-//            }
-//
-//            @Override
-//            public void engineInitFail() {
-//                //引擎初始化失败的回调
-//                Log.d(KEY, "engineInitFail");
-//            }
-//        });
 
         mNaviHelper = BikeNavigateHelper.getInstance();
 
@@ -186,38 +137,6 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
 
         //searchButtonProcess();
     }
-
-//    /**
-//     * 开始路线导航
-//     */
-//    private void routeWalkPlanWithParam() {
-//        //构造WalkNaviLaunchParam
-//        mParam = new WalkNaviLaunchParam().stPt(startLoc).endPt(endLoc);
-//
-//        //发起算路
-//        BikeNavigateHelper.getInstance().routePlanWithParams(mParam, new IWRoutePlanListener() {
-//            @Override
-//            public void onRoutePlanStart() {
-//                //开始算路的回调
-//            }
-//
-//            @Override
-//            public void onRoutePlanSuccess() {
-//                //算路成功
-//                //跳转至诱导页面
-//                Log.d(KEY, "onRoutePlanSuccess");
-//                Intent intent = new Intent(WalkingRouteSearchDemo.this, BNaviGuideActivity.class);
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onRoutePlanFail(WalkRoutePlanError walkRoutePlanError) {
-//                //算路失败的回调
-//            }
-//        });
-//
-//
-//    }
 
     //初始化引擎
     private void startBikeNavi() {
@@ -241,7 +160,6 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
     //开始算路
     private void routePlanWithParam() {
 
-
         mNaviHelper.routePlanWithParams(param, new IBRoutePlanListener() {
             @Override
             public void onRoutePlanStart() {
@@ -252,7 +170,7 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
             public void onRoutePlanSuccess() {
                 Log.d("View", "onRoutePlanSuccess");
                 Intent intent = new Intent();
-                intent.setClass(WalkingRouteSearchDemo.this, BNaviGuideActivity.class);
+                intent.setClass(BikingRouteSearch.this, BNaviGuideActivity.class);
                 startActivityForResult(intent, BIKE_GUIDE_ACTIVITY);
             }
 
@@ -357,7 +275,7 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
         if (result.error == SearchResult.ERRORNO.AMBIGUOUS_ROURE_ADDR) {
             // 起终点或途经点地址有岐义，通过以下接口获取建议查询信息
             // result.getSuggestAddrInfo()
-            AlertDialog.Builder builder = new AlertDialog.Builder(WalkingRouteSearchDemo.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(BikingRouteSearch.this);
             builder.setTitle("提示");
             builder.setMessage("检索地址有歧义，请重新设置。\n可通过getSuggestAddrInfo()接口获得建议查询信息");
             builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
@@ -371,7 +289,7 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
         }
 
         if (result.error != SearchResult.ERRORNO.NO_ERROR) {
-            Toast.makeText(WalkingRouteSearchDemo.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BikingRouteSearch.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
         } else {
             mBtnPre.setVisibility(View.VISIBLE);
             mBtnNext.setVisibility(View.VISIBLE);
@@ -379,7 +297,7 @@ public class WalkingRouteSearchDemo extends AppCompatActivity implements BaiduMa
             if (result.getRouteLines().size() > 1) {
                 mWalkingRouteResult = result;
                 if (!hasShowDialog) {
-                    SelectRouteDialog selectRouteDialog = new SelectRouteDialog(WalkingRouteSearchDemo.this,
+                    SelectRouteDialog selectRouteDialog = new SelectRouteDialog(BikingRouteSearch.this,
                             result.getRouteLines(), RouteLineAdapter.Type.WALKING_ROUTE);
                     selectRouteDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override

@@ -67,7 +67,7 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
         mEditCity = (EditText) findViewById(R.id.city);
         String city = bundle.getString("city");
         mEditCity.setText(city);
-        Log.d(KEY, city);
+//        Log.d(KEY, city);
 
         mResultRecyclerView = (RecyclerView) findViewById(R.id.sug_recycler_list);
 
