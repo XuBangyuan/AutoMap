@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 介绍地点检索输入提示
  */
-public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggestionResultListener {
+public class PoiSugSearch extends AppCompatActivity implements OnGetSuggestionResultListener {
 
     private SuggestionSearch mSuggestionSearch = null;
 
@@ -67,11 +67,10 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
         mEditCity = (EditText) findViewById(R.id.city);
         String city = bundle.getString("city");
         mEditCity.setText(city);
-//        Log.d(KEY, city);
 
         mResultRecyclerView = (RecyclerView) findViewById(R.id.sug_recycler_list);
 
-        mResultRecyclerView.setLayoutManager(new LinearLayoutManager(PoiSugSearchDemo.this));
+        mResultRecyclerView.setLayoutManager(new LinearLayoutManager(PoiSugSearch.this));
 
         mKeyWordsView = (AutoCompleteTextView) findViewById(R.id.searchkey);
         mKeyWordsView.setThreshold(1);
@@ -120,14 +119,15 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
             return;
         }
 
-//        List<HashMap<String, String>> suggest = new ArrayList<>();
         List<ResultEntity> suggest = new ArrayList<>();
         for (SuggestionResult.SuggestionInfo info : suggestionResult.getAllSuggestions()) {
-            if (info.getKey() != null && info.getDistrict() != null && info.getCity() != null
+            if (info.getKey() != null && info.getDistrict() != null
+                    && info.getCity() != null
             && info.getPt() != null) {
 
-                ResultEntity resultEntity = new ResultEntity(info.getUid(), info.getKey(), info.getCity(),
-                        info.getDistrict(), info.getPt().latitude, info.getPt().longitude);
+                ResultEntity resultEntity = new ResultEntity(info.getUid(),
+                        info.getKey(), info.getCity(), info.getDistrict(),
+                        info.getPt().latitude, info.getPt().longitude);
                 suggest.add(resultEntity);
             }
         }
@@ -188,7 +188,7 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
             result = intent;
             setResult(RESULT_OK, intent);
             finish();
-            PoiSugSearchDemo.this.finish();
+            PoiSugSearch.this.finish();
         }
 
     }
@@ -211,7 +211,7 @@ public class PoiSugSearchDemo extends AppCompatActivity implements OnGetSuggesti
 
         @Override
         public ResultHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater layoutInflater = LayoutInflater.from(PoiSugSearchDemo.this);
+            LayoutInflater layoutInflater = LayoutInflater.from(PoiSugSearch.this);
             Log.d("adapter", "begin");
             setResult(RESULT_OK);
 

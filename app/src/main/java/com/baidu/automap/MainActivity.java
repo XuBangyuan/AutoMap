@@ -26,7 +26,7 @@ import com.baidu.automap.entity.ResultEntity;
 import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.response.RouteNodeResponse;
 import com.baidu.automap.search.PoiOverlay;
-import com.baidu.automap.search.PoiSugSearchDemo;
+import com.baidu.automap.search.PoiSugSearch;
 import com.baidu.automap.searchroute.BikingRouteSearch;
 import com.baidu.automap.searchroute.RoutePlanActivity;
 import com.baidu.automap.searchroute.WalkingRouteSearch;
@@ -321,7 +321,8 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             public void onClick(View v) {
                 String keyWord = nearbySearchText.getText().toString();
                 if(keyWord == null || keyWord.length() == 0) {
-                    Toast.makeText(MainActivity.this, "请输入搜索内容", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "请输入搜索内容",
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     curState = pageState.NEARBY;
                     briedIntroductionLinear.setVisibility(View.GONE);
@@ -383,29 +384,13 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             }
         });
 
-//        //marker点击
-//        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
-//            //marker被点击时回调的方法
-//            //若响应点击事件，返回true，否则返回false
-//            //默认返回false
-//            @Override
-//            public boolean onMarkerClick(Marker marker) {
-//                Log.d(KEY, "marker onclick begin");
-//                ResultEntity result = (ResultEntity) marker.getExtraInfo().getSerializable("result");
-////                isBack = true;
-//                Log.d(KEY, "marker onClick" + result.getuId());
-//                searchButtonProcess(result.getuId());
-//                return true;
-//            }
-//        });
-
         //搜索按钮点击
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                Log.d("mainActivity", "searchButton onclick, curCity : " + curLocation.getCity());
                 clearPage();
-                Intent intent = new Intent(MainActivity.this, PoiSugSearchDemo.class);
+                Intent intent = new Intent(MainActivity.this, PoiSugSearch.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("city",curLocation.getCity());
                 intent.putExtras(bundle);
@@ -454,27 +439,20 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         });
 
         //单击事件
-        BaiduMap.OnMapClickListener mapOnClickListener = new BaiduMap.OnMapClickListener() {
-            /**
-             * 地图单击事件回调函数
-             *
-             * @param point 点击的地理坐标
-             */
+        BaiduMap.OnMapClickListener mapOnClickListener =
+                new BaiduMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 Log.d(KEY, point.latitude+ " , " +  point.longitude);
             }
 
-            /**
-             * 地图内 Poi 单击事件回调函数
-             *
-             * @param mapPoi 点击的 poi 信息
-             */
             @Override
             public void onMapPoiClick(MapPoi mapPoi) {
                 Log.d(KEY, "onMapPoiClick " + mapPoi.getName());
-                Log.d(KEY, mapPoi.getPosition().latitude + " , " + mapPoi.getPosition().longitude);
-                mPoiSearch.searchPoiDetail(new PoiDetailSearchOption().poiUids(mapPoi.getUid()));
+                Log.d(KEY, mapPoi.getPosition().latitude + " , "
+                        + mapPoi.getPosition().longitude);
+                mPoiSearch.searchPoiDetail(new PoiDetailSearchOption()
+                        .poiUids(mapPoi.getUid()));
             }
         };
         //设置地图单击事件监听
@@ -537,7 +515,8 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
      */
     public void  searchNearbyProcess() {
         Log.d(KEY, "searchNearbyProcess center : " + curPoiRouteNode.getDesName());
-        LatLng latLng = new LatLng(curPoiRouteNode.getLatitude(), curPoiRouteNode.getlongitude());
+        LatLng latLng = new LatLng(curPoiRouteNode.getLatitude(),
+                curPoiRouteNode.getlongitude());
         PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption()
                 .keyword(nearbySearchText.getText().toString())
                 .sortType(PoiSortType.distance_from_near_to_far)
@@ -587,16 +566,15 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
 
 
     /**
-     * 获取POI搜索结果，包括searchInCity，searchNearby，searchInBound返回的搜索结果
-     *
-     * @param result    Poi检索结果，包括城市检索，周边检索，区域检索
+     * 获取POI搜索结果
+     * @param result    Poi检索结果
      */
     public void onGetPoiResult(PoiResult result) {
         if (result == null || result.error == SearchResult.ERRORNO.RESULT_NOT_FOUND) {
-            Toast.makeText(MainActivity.this, "未找到结果", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "未找到结果",
+                    Toast.LENGTH_LONG).show();
             return;
         }
-
         if (result.error == SearchResult.ERRORNO.NO_ERROR) {
             mBaiduMap.clear();
             PoiOverlay overlay = new MyPoiOverlay(mBaiduMap);
@@ -605,7 +583,8 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             overlay.addToMap();
             overlay.zoomToSpan();
 
-            LatLng latLng = new LatLng(curPoiRouteNode.getLatitude(), curPoiRouteNode.getlongitude());
+            LatLng latLng = new LatLng(curPoiRouteNode.getLatitude(),
+                    curPoiRouteNode.getlongitude());
             showNearbyArea(latLng, radius);
 
             return;
@@ -644,7 +623,6 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         mBaiduMap.addOverlay(ooCircle);
         curState = pageState.START;
         isBack = true;
-//        isOverlay = true;
     }
 
     private class MyPoiOverlay extends PoiOverlay {
@@ -656,12 +634,8 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         public boolean onPoiClick(int index) {
             super.onPoiClick(index);
             PoiInfo poi = getPoiResult().getAllPoi().get(index);
-            // if (poi.hasCaterDetails) {
             mPoiSearch.searchPoiDetail(new PoiDetailSearchOption().poiUids(poi.getUid()));
-//            mPoiSearch.searchPoiDetail((new PoiDetailSearchOption()).poiUid(poi.uid));
             Log.d(KEY, "nearby poi click, uId : " + poi.uid);
-
-            // }
             return true;
         }
     }
@@ -688,27 +662,22 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
     @Override
     public void onGetPoiDetailResult(PoiDetailSearchResult poiDetailSearchResult) {
         Log.d(KEY, "onGetPoiDetailResult");
-
         if (poiDetailSearchResult.error != SearchResult.ERRORNO.NO_ERROR) {
-            Toast.makeText(MainActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "抱歉，未找到结果",
+                    Toast.LENGTH_SHORT).show();
         } else {
-            List<PoiDetailInfo> poiDetailInfoList = poiDetailSearchResult.getPoiDetailInfoList();
+            List<PoiDetailInfo> poiDetailInfoList = poiDetailSearchResult
+                    .getPoiDetailInfoList();
             if (null == poiDetailInfoList || poiDetailInfoList.isEmpty()) {
-                Toast.makeText(MainActivity.this, "抱歉，检索结果为空", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "抱歉，检索结果为空",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
-
-
             for (int i = 0; i < poiDetailInfoList.size(); i++) {
                 // 获取详情检索结果
                 PoiDetailInfo poiDetailInfo = poiDetailInfoList.get(i);
                 if (null != poiDetailInfo) {
                     // 展示Detail 相关信息
-                    Log.d(KEY, poiDetailInfo.getName());
-                    Log.d(KEY, poiDetailInfo.getAddress());
-                    Log.d(KEY, Integer.valueOf(poiDetailInfo.getDistance()).toString());
-                    Log.d(KEY, poiDetailInfo.getShopHours());
-
                     addDetailInfor(poiDetailInfo);
                 }
             }
@@ -721,15 +690,13 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
      * @param poiDetailInfo poi详情信息
      */
     private void addDetailInfor(PoiDetailInfo poiDetailInfo) {
-//        mBaiduMap.clear();
         Log.d(KEY, "addDetailInfor");
-
         DecimalFormat decimalFormat = new DecimalFormat("#.00");
-
-        LatLng build = new LatLng(poiDetailInfo.getLocation().latitude, poiDetailInfo.getLocation().longitude);
-        LatLng myLoc = new LatLng(curLocation.getLatitude(), curLocation.getLongitude());
+        LatLng build = new LatLng(poiDetailInfo.getLocation().latitude,
+                poiDetailInfo.getLocation().longitude);
+        LatLng myLoc = new LatLng(curLocation.getLatitude(),
+                curLocation.getLongitude());
         double dis = DistanceUtil. getDistance(build, myLoc);
-
 
         buildNameText.setText(poiDetailInfo.getName());
         buildToMeDisText.setText(decimalFormat.format(dis) + "m");
@@ -767,22 +734,6 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         } else {
             finish();
         }
-
-//        if(isOverlay) {
-//            mBaiduMap.clear();
-//            poiSearchLayout.setVisibility(View.VISIBLE);
-//            isOverlay = false;
-//            return;
-//        }
-//
-//        if (isBack) {
-//            briedIntroductionLinear.setVisibility(View.GONE);
-//            routePlanButton.setVisibility(View.VISIBLE);
-//            isBack = false;
-//            return;
-//        }
-
-//        finish();
     }
 
     @Override
@@ -818,7 +769,6 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             if(POI_SUG == requestCode) {
                 Log.d(KEY, "poi_sug onActivityResult");
                 ResultEntity resultEntity = (ResultEntity) data.getSerializableExtra("result");
-//                Log.d(KEY, ((ResultEntity)data.getSerializableExtra("result")).getCity() + " result");
                 LatLng latLng = new LatLng(resultEntity.getLatitude(), resultEntity.getLongitude());
 
                 mPoiSearch.searchPoiDetail(new PoiDetailSearchOption().poiUids(resultEntity.getuId()));
@@ -926,7 +876,6 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         mBaiduMap.animateMapStatus(update);
         update = MapStatusUpdateFactory.zoomTo(16f);
         mBaiduMap.animateMapStatus(update);
-//        Log.d("mainActivity", "navigateTo curCity : " + location.getCity());
     }
 
     public class MyLocationListener extends BDAbstractLocationListener {
@@ -934,24 +883,25 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
         public void onReceiveLocation(BDLocation location) {
             Log.d(KEY, "listener " + "execute listener");
 
-            //mapView 销毁后不在处理新接收的位置
+            //mapView 销毁后不再处理新接收的位置
             if (location == null || mMapView == null){
                 Log.d(KEY, "location " + "location == null");
                 return;
             }
-            Log.d(KEY, "location data " + location.getLatitude() + ", " + location.getLongitude());
+            Log.d(KEY, "location data " + location.getLatitude() + ", "
+                    + location.getLongitude());
             MyLocationData locData = new MyLocationData.Builder()
                     .accuracy(location.getRadius())
-                    // 此处设置开发者获取到的方向信息，顺时针0-360
+                    // 此处设置获取到的方向信息，顺时针0-360
                     .direction(location.getDirection()).latitude(location.getLatitude())
                     .longitude(location.getLongitude()).build();
             mBaiduMap.setMyLocationData(locData);
-
             Log.d(KEY, location.getLocTypeDescription());
 
             curLocation = location;
             center = new LatLng(location.getLatitude(), location.getLongitude());
-            Log.d(KEY, curLocation.getCity() + ", " + curLocation.getLatitude() + ", " + curLocation.getLongitude());
+            Log.d(KEY, curLocation.getCity() + ", " + curLocation.getLatitude()
+                    + ", " + curLocation.getLongitude());
 
             if(isFirstLocate) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());

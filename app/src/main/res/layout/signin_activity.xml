@@ -42,7 +42,10 @@
             android:id="@+id/user_id"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:maxLength="16"
+            android:singleLine="true"
+            android:digits="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"/>
     </LinearLayout>
 
     <LinearLayout
@@ -68,8 +71,11 @@
             android:id="@+id/user_password"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inputType="numberPassword"
-            android:textColor="@android:color/black" />
+            android:inputType="textPassword"
+            android:textColor="@android:color/black"
+            android:maxLength="16"
+            android:digits="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            android:singleLine="true"/>
 
 
     </LinearLayout>

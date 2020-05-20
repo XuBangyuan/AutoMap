@@ -241,6 +241,7 @@ public class MediumActivity extends AppCompatActivity {
 
             private Mp3Entity mMp3Entity;
 
+            private String realName;
             private TextView name;
             private Button start;
             private Button pause;
@@ -259,16 +260,11 @@ public class MediumActivity extends AppCompatActivity {
             }
 
             public void bind(Mp3Entity node) {
-
+                realName = node.getName();
                 mMp3Entity = node;
-                name.setText(node.getName());
-
-
+                name.setText(node.getName().substring(0, node.getName().length() - 13));
             }
         }
-
-
-        ////////////////////////////以下为item点击处理///////////////////////////////
 
         private OnRecyclerViewItemClickListener mOnItemClickListener = null;
 
@@ -294,34 +290,6 @@ public class MediumActivity extends AppCompatActivity {
 
             Mp3Entity mp3Entity = list.get(position);
 
-
-
-//            if(position != prePosition && mediaPlayer != null) {
-//                mediaPlayer.pause();
-//
-//
-//            }
-//
-//            if(mediaPlayer == null) {
-//                /* 获得MeidaPlayer对象 */
-//                mediaPlayer = new MediaPlayer();
-//
-//                /* 得到文件路径 *//* 注：文件存放在SD卡的根目录，一定要进行prepare()方法，使硬件进行准备 */
-//
-//                try{
-//                    /* 为MediaPlayer 设置数据源 */
-//                    mediaPlayer.setDataSource(file.getAbsolutePath());
-//
-//                    /* 准备 */
-//                    mediaPlayer.prepare();
-//
-//                }catch(Exception ex){
-//                    Log.d(KEY, ex.toString());
-//                }
-//            }
-
-
-
             if (mOnItemClickListener != null) {
                 switch (v.getId()){
                     case R.id.media_start:
@@ -329,12 +297,8 @@ public class MediumActivity extends AppCompatActivity {
                         break;
                     case R.id.media_pause:
                         pauseMedium();
-//                        mediaPlayer.pause();
-//                        Toast.makeText(MediumActivity.this, "暂停播放", Toast.LENGTH_SHORT).show();
-//                        mOnItemClickListener.onClick(v, ViewName.SET_END, position);
                         break;
                     default:
-                        //mOnItemClickListener.onClick(v, ViewName.ELSE, position);
                         break;
                 }
             }
@@ -361,11 +325,6 @@ public class MediumActivity extends AppCompatActivity {
             if(!file.exists()) {
                 try {
                     file.createNewFile();
-
-                    Log.d(KEY + "path", path);
-                    Log.d(KEY, curMp3.getName());
-                    Log.d(KEY + "file path", file.getAbsolutePath());
-
                     InputStream in = new ByteArrayInputStream(curMp3.getFile());
                     try {
                         FileOutputStream out = new FileOutputStream(file);
@@ -468,16 +427,14 @@ public class MediumActivity extends AppCompatActivity {
                 thread.join();
 
                 if(!thread.isSuccess) {
-                    Toast.makeText(MediumActivity.this, "获取失败，请稍后再试", Toast.LENGTH_SHORT).show();
+                    Log.e(KEY, "get medium failed");
+                    Toast.makeText(MediumActivity.this,
+                            "获取失败，请稍后再试", Toast.LENGTH_SHORT).show();
                 }
             } catch (InterruptedException e) {
                 Log.d(KEY, e.toString());
             }
         }
-
-
-
-//        warnText.setVisibility(View.GONE);
     }
 
     private class ThreadGetMedium extends Thread {
@@ -507,18 +464,28 @@ public class MediumActivity extends AppCompatActivity {
                 Log.d(KEY, jsonObject.toString());
 
                 response.setMessage(jsonObject.getString("message"));
-                //response != null && response.getMessage().compareTo("success!") == 0
                 if(response != null && response.getMessage().compareTo("success!") == 0) {
                     Log.d(KEY, url + " get data from server success!");
                     isSuccess = true;
 
-                    MediumTran tran = new MediumTran();
-                    tran.setDesId(jsonObject.getString("desId"));
-                    tran.setFile(jsonObject.getString("file"));
-                    tran.setName(jsonObject.getString("name"));
-                    tran.setId(jsonObject.getInt("id"));
+                    JSONArray jsonArray =new JSONArray(jsonObject.getString("list"));
 
-                    curMp3 = new Mp3Entity(tran);
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        MediumTran entity = new MediumTran();
+                        entity.setDesId(object.getString("desId"));
+                        entity.setFile(object.getString("file"));
+                        entity.setId(object.getInt("id"));
+                        entity.setName(object.getString("name"));
+
+                        curMp3 = new Mp3Entity(entity);
+                    }
+
+                    if(curMp3.getFile() != null) {
+                        Log.d(KEY, "curMp3.getFile.length : " + curMp3.getFile().length);
+                    } else {
+                        Log.d(KEY, "curMp3.getFile failed");
+                    }
 
                 } else {
                     isSuccess = false;

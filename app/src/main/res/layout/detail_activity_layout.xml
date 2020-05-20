@@ -37,7 +37,6 @@
             android:id="@+id/introduce_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:text="该景点暂无资料" />
 
     </LinearLayout>

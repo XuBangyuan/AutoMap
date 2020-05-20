@@ -132,19 +132,6 @@ public class LoginActivity extends AppCompatActivity {
         private String userIdInput;
         private String passwordInput;
 
-        public ThreadLogin(String userIdInput, String passwordInput) {
-            this.userIdInput = userIdInput;
-            this.passwordInput = passwordInput;
-        }
-
-        public boolean getIsSuccess() {
-            return isSuccess;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
         @Override
         public void run() {
             User user = new User();
@@ -177,5 +164,20 @@ public class LoginActivity extends AppCompatActivity {
             }
 
         }
+
+        public ThreadLogin(String userIdInput, String passwordInput) {
+            this.userIdInput = userIdInput;
+            this.passwordInput = passwordInput;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+
     }
 }

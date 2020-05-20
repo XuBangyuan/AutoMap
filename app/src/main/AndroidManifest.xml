@@ -32,7 +32,7 @@
             android:launchMode="standard"/>
         <activity android:name=".searchroute.BikingRouteSearch"
             android:launchMode="standard"/>
-        <activity android:name=".search.PoiSugSearchDemo"
+        <activity android:name=".search.PoiSugSearch"
             android:launchMode="standard"/>
         <activity android:name=".MainActivity"/>
         <activity android:name=".navi.DemoNaviActivity"/>

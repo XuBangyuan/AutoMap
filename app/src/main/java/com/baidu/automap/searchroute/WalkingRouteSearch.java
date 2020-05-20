@@ -203,23 +203,6 @@ public class WalkingRouteSearch extends AppCompatActivity implements BaiduMap.On
         mBtnNext.setVisibility(View.INVISIBLE);
         // 清除之前的覆盖物
         mBaidumap.clear();
-        // 设置起终点信息 起点参数
-//        PlanNode startNode = PlanNode.withCityNameAndPlaceName(mEditStartCity.getText().toString().trim(),
-//                mStrartNodeView.getText().toString().trim());
-
-        // 终点参数
-//        PlanNode endNode = PlanNode.withCityNameAndPlaceName(mEditEndCity.getText().toString().trim(),
-//                mEndNodeView.getText().toString().trim());
-
-
-
-
-//        Log.d(KEY, walkingRoutePlanOption.toString());
-
-        // 实际使用中请对起点终点城市进行正确的设定
-//        mSearch.walkingSearch((new WalkingRoutePlanOption())
-//                .from(startNode) // 起点
-//                .to(endNode)); // 终点
 
     }
 

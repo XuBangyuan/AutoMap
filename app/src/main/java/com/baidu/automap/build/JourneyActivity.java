@@ -140,12 +140,11 @@ public class JourneyActivity extends AppCompatActivity {
 
     //删除攻略
     private void deleteJourney() {
-        ThreadJourney thread = new ThreadJourney("deleteJourneyByCondition", curJourney);
+        ThreadJourney thread = new ThreadJourney("deleteJourneyByCondition",
+                curJourney);
         thread.start();
-
         try {
             thread.join();
-
             if(thread.getIsSuccess()) {
                 Log.d(KEY, "删除攻略成功，更新攻略列表");
                 updateJourneyList();
@@ -153,7 +152,8 @@ public class JourneyActivity extends AppCompatActivity {
                 isShow = false;
             } else {
                 Log.d(KEY, response.getMessage());
-                Toast.makeText(JourneyActivity.this, response.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(JourneyActivity.this, response.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Log.d(KEY , e.toString());

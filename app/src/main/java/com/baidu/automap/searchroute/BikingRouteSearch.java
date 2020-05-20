@@ -146,7 +146,8 @@ public class BikingRouteSearch extends AppCompatActivity implements BaiduMap.OnM
             public void engineInitSuccess() {
                 Log.d("View", "engineInitSuccess");
                 if(startLoc.toString()!=null&&endLoc.toString()!=null)
-                    param = new BikeNaviLaunchParam().stPt(startLoc).endPt(endLoc).vehicle(1);
+                    param = new BikeNaviLaunchParam().stPt(startLoc).
+                            endPt(endLoc).vehicle(1);
                 routePlanWithParam();
             }
 
@@ -159,7 +160,6 @@ public class BikingRouteSearch extends AppCompatActivity implements BaiduMap.OnM
 
     //开始算路
     private void routePlanWithParam() {
-
         mNaviHelper.routePlanWithParams(param, new IBRoutePlanListener() {
             @Override
             public void onRoutePlanStart() {
@@ -170,7 +170,8 @@ public class BikingRouteSearch extends AppCompatActivity implements BaiduMap.OnM
             public void onRoutePlanSuccess() {
                 Log.d("View", "onRoutePlanSuccess");
                 Intent intent = new Intent();
-                intent.setClass(BikingRouteSearch.this, BNaviGuideActivity.class);
+                intent.setClass(BikingRouteSearch.this,
+                        BNaviGuideActivity.class);
                 startActivityForResult(intent, BIKE_GUIDE_ACTIVITY);
             }
 
@@ -206,24 +207,6 @@ public class BikingRouteSearch extends AppCompatActivity implements BaiduMap.OnM
         mBtnNext.setVisibility(View.INVISIBLE);
         // 清除之前的覆盖物
         mBaidumap.clear();
-        // 设置起终点信息 起点参数
-//        PlanNode startNode = PlanNode.withCityNameAndPlaceName(mEditStartCity.getText().toString().trim(),
-//                mStrartNodeView.getText().toString().trim());
-
-        // 终点参数
-//        PlanNode endNode = PlanNode.withCityNameAndPlaceName(mEditEndCity.getText().toString().trim(),
-//                mEndNodeView.getText().toString().trim());
-
-
-
-
-//        Log.d(KEY, walkingRoutePlanOption.toString());
-
-        // 实际使用中请对起点终点城市进行正确的设定
-//        mSearch.walkingSearch((new WalkingRoutePlanOption())
-//                .from(startNode) // 起点
-//                .to(endNode)); // 终点
-
     }
 
     /**

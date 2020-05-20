@@ -20,26 +20,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.baidu.automap.R;
 import com.baidu.automap.entity.ResultEntity;
 import com.baidu.automap.entity.RouteNode;
-import com.baidu.automap.entity.RoutePlanList;
 import com.baidu.automap.entity.RoutePlanNode;
 import com.baidu.automap.entity.UserRoute;
 import com.baidu.automap.entity.response.RouteNodeResponse;
-import com.baidu.automap.navi.BNaviGuideActivity;
-import com.baidu.automap.search.PoiSugSearchDemo;
+import com.baidu.automap.search.PoiSugSearch;
 import com.baidu.automap.util.HttpUtil;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.bikenavi.BikeNavigateHelper;
 import com.baidu.mapapi.bikenavi.adapter.IBEngineInitListener;
-import com.baidu.mapapi.bikenavi.adapter.IBRoutePlanListener;
-import com.baidu.mapapi.bikenavi.model.BikeRoutePlanError;
 import com.baidu.mapapi.bikenavi.params.BikeNaviLaunchParam;
-import com.baidu.mapapi.bikenavi.params.BikeRouteNodeInfo;
 import com.baidu.mapapi.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class SelectRoutePlanActivity extends AppCompatActivity {
@@ -104,7 +98,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
 
         isInit = false;
         isInitSuccess = false;
-        initBikeNavi();
+//        initBikeNavi();
 
         node_list_view = (RecyclerView) findViewById(R.id.select_all_node);
         node_list_view.setLayoutManager(new LinearLayoutManager(this));
@@ -114,7 +108,7 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
         addNode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SelectRoutePlanActivity.this, PoiSugSearchDemo.class);
+                Intent intent = new Intent(SelectRoutePlanActivity.this, PoiSugSearch.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("city", configCity);
                 intent.putExtras(bundle);
@@ -138,19 +132,6 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 } else {
 
                     guideChoice.setVisibility(View.VISIBLE);
-//                    if(!isInit) {
-//                        initBikeNavi();
-//                    }
-//                    Log.d(KEY, "startNode : " + startLoc.latitude + " , " + endLoc.longitude);
-//                    Log.d(KEY, "endNode : " + endLoc.latitude + " , " + endLoc.longitude);
-//
-//                    if(isInitSuccess) {
-//                        startBikeNavi();
-//                        Log.d(KEY, "bikeNavi finished");
-//                        finish();
-//                    } else {
-//                        Toast.makeText(SelectRoutePlanActivity.this, "导航模块初始化失败", Toast.LENGTH_LONG).show();
-//                    }
                 }
             }
         });
@@ -194,14 +175,13 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
     private void addRouteNode(RouteNode routeNode) {
         ThreadAddRouteNode thread = new ThreadAddRouteNode(routeNode);
         thread.start();
-
         try {
             thread.join();
-
             if(thread.getIsSuccess()) {
                 updateRouteNode();
             } else {
-                Toast.makeText(SelectRoutePlanActivity.this, thread.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(SelectRoutePlanActivity.this,
+                        thread.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } catch (InterruptedException e) {
             Log.d(KEY, e.toString());
@@ -469,12 +449,10 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
         Log.d(KEY, "request : " + requestCode + " result : " + resultCode);
         if(RESULT_OK == resultCode) {
             if(POI_SUG == requestCode) {
-                //Bundle bundle = data.getExtras();
-                Log.d(KEY, "want to know data");
                 ResultEntity resultEntity = (ResultEntity) data.getSerializableExtra("result");
-                //ResultEntity result = (ResultEntity) bundle.getSerializable("result");
                 Log.d(KEY, ((ResultEntity)data.getSerializableExtra("result")).getCity() + " result");
-                LatLng latLng = new LatLng(resultEntity.getLatitude(), resultEntity.getLongitude());
+                LatLng latLng = new LatLng(resultEntity.getLatitude(),
+                        resultEntity.getLongitude());
 
                 RouteNode routeNode = new RouteNode();
                 routeNode.setRouteId(curRouteId);
@@ -482,7 +460,6 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 routeNode.setLatitude(latLng.latitude);
                 routeNode.setDesName(resultEntity.getKey());
                 routeNode.setDesId(resultEntity.getuId());
-
                 addRouteNode(routeNode);
             } else if(BIKING_ROUTE == requestCode) {
                 Log.d(KEY, "finish bikeNavi");
