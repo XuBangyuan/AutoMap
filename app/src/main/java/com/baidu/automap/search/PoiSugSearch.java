@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.multidex.MultiDex;
@@ -75,6 +76,23 @@ public class PoiSugSearch extends AppCompatActivity implements OnGetSuggestionRe
         mKeyWordsView = (AutoCompleteTextView) findViewById(R.id.searchkey);
         mKeyWordsView.setThreshold(1);
 
+        mEditCity.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mKeyWordsView.setText("");
+            }
+        });
+
         // 当输入关键字变化时，动态更新建议列表
         mKeyWordsView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -93,11 +111,18 @@ public class PoiSugSearch extends AppCompatActivity implements OnGetSuggestionRe
                     return;
                 }
 
-                // 使用建议搜索服务获取建议列表，结果在onSuggestionResult()中更新
-                mSuggestionSearch.requestSuggestion((new SuggestionSearchOption())
-                        .citylimit(true)
-                        .keyword(cs.toString()) // 关键字
-                        .city(mEditCity.getText().toString())); // 城市
+                String city = mEditCity.getText().toString();
+                if(city == null || city.length() == 0) {
+                    mKeyWordsView.setText("");
+                    Toast.makeText(PoiSugSearch.this, "输入城市后才可以搜索哦", Toast.LENGTH_SHORT ).show();
+                } else {
+                    // 使用建议搜索服务获取建议列表，结果在onSuggestionResult()中更新
+                    mSuggestionSearch.requestSuggestion((new SuggestionSearchOption())
+                            .citylimit(true)
+                            .keyword(cs.toString()) // 关键字
+                            .city(mEditCity.getText().toString())); // 城市
+                }
+
             }
         });
     }
@@ -116,6 +141,10 @@ public class PoiSugSearch extends AppCompatActivity implements OnGetSuggestionRe
     @Override
     public void onGetSuggestionResult(SuggestionResult suggestionResult) {
         if (suggestionResult == null || suggestionResult.getAllSuggestions() == null) {
+            Log.d(KEY, "poiSugSearch没有结果");
+            Toast.makeText(PoiSugSearch.this, mEditCity.getText().toString() + "内无法找到符合关键字的搜索项，请重新输入" ,
+                    Toast.LENGTH_SHORT ).show();
+            mResultRecyclerView.setAdapter(new ResultAdapter(new ArrayList<>()));
             return;
         }
 
@@ -124,7 +153,6 @@ public class PoiSugSearch extends AppCompatActivity implements OnGetSuggestionRe
             if (info.getKey() != null && info.getDistrict() != null
                     && info.getCity() != null
             && info.getPt() != null) {
-
                 ResultEntity resultEntity = new ResultEntity(info.getUid(),
                         info.getKey(), info.getCity(), info.getDistrict(),
                         info.getPt().latitude, info.getPt().longitude);

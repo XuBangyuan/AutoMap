@@ -167,7 +167,8 @@ public class WalkingRouteSearch extends AppCompatActivity implements BaiduMap.On
             public void onRoutePlanSuccess() {
                 Log.d("View", "onRoutePlanSuccess");
                 Intent intent = new Intent();
-                intent.setClass(WalkingRouteSearch.this, WNaviGuideActivity.class);
+                intent.setClass(WalkingRouteSearch.this,
+                        WNaviGuideActivity.class);
                 startActivityForResult(intent, BIKE_GUIDE_ACTIVITY);
             }
 

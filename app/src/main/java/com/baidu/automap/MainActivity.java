@@ -555,13 +555,19 @@ public class MainActivity extends AppCompatActivity implements OnGetPoiSearchRes
             intent = new Intent(MainActivity.this, BikingRouteSearch.class);
         }
 //        intent = new Intent(MainActivity.this, WalkingRouteSearch.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("startNode", startNode);
-        bundle.putParcelable("endNode", endNode);
-        bundle.putString("city", curLocation.getCity());
-        intent.putExtras(bundle);
-        //Log.d("mainActivity", bundle.getString("city"));
-        startActivity(intent);
+
+        if(DistanceUtil.getDistance(startNode, endNode) >= 50000) {
+            Toast.makeText(MainActivity.this, "距离太远，暂不支持导航", Toast.LENGTH_SHORT).show();
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("startNode", startNode);
+            bundle.putParcelable("endNode", endNode);
+            bundle.putString("city", curLocation.getCity());
+            intent.putExtras(bundle);
+            //Log.d("mainActivity", bundle.getString("city"));
+            startActivity(intent);
+        }
+
     }
 
 

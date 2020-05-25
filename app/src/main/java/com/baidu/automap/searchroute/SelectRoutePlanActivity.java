@@ -30,6 +30,7 @@ import com.baidu.mapapi.bikenavi.BikeNavigateHelper;
 import com.baidu.mapapi.bikenavi.adapter.IBEngineInitListener;
 import com.baidu.mapapi.bikenavi.params.BikeNaviLaunchParam;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -130,8 +131,11 @@ public class SelectRoutePlanActivity extends AppCompatActivity {
                 } else if(startLoc.latitude == endLoc.latitude && startLoc.longitude == endLoc.longitude) {
                     Toast.makeText(SelectRoutePlanActivity.this, "起点和终点是同一个位置，请重新设定", Toast.LENGTH_LONG).show();
                 } else {
-
-                    guideChoice.setVisibility(View.VISIBLE);
+                    if(DistanceUtil.getDistance(startLoc, endLoc) >= 50000) {
+                        Toast.makeText(SelectRoutePlanActivity.this, "距离太远，暂不支持导航", Toast.LENGTH_SHORT).show();
+                    } else {
+                        guideChoice.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });

@@ -278,25 +278,30 @@ public class MediumActivity extends AppCompatActivity {
             //注意这里使用getTag方法获取数据
             int position = (int) v.getTag();
 
-            if(position != prePosition) {
-                curMp3.setMp3(list.get(position));
-                change = true;
-                Log.d(KEY, "change position : " + position);
-            } else {
-                change = false;
-            }
-
-            prePosition = position;
-
-            Mp3Entity mp3Entity = list.get(position);
 
             if (mOnItemClickListener != null) {
                 switch (v.getId()){
                     case R.id.media_start:
+                        if(position != prePosition) {
+                            curMp3.setMp3(list.get(position));
+                            change = true;
+                            Log.d(KEY, "change position : " + position);
+                        } else {
+                            change = false;
+                        }
+
+                        prePosition = position;
+
+//                        Mp3Entity mp3Entity = list.get(position);
+
                         startMedium();
                         break;
                     case R.id.media_pause:
-                        pauseMedium();
+                        if(position != prePosition) {
+
+                        } else {
+                            pauseMedium();
+                        }
                         break;
                     default:
                         break;
@@ -318,6 +323,7 @@ public class MediumActivity extends AppCompatActivity {
 
     public void startMedium() {
         if(change) {
+            change = false;
 
             updateMedium();
 

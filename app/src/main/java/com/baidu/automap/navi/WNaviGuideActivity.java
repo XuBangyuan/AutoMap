@@ -11,7 +11,7 @@ import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam;
 public class WNaviGuideActivity extends Activity {
 
     private WalkNavigateHelper mNaviHelper;
-    private static String KEY = "bNaviGuideActivity";
+    private static String KEY = "wNaviGuideActivity";
 
 
     @Override
@@ -52,7 +52,6 @@ public class WNaviGuideActivity extends Activity {
         }
 
         mNaviHelper.startWalkNavi(WNaviGuideActivity.this);
-        // 设置诱导信息回调监听
     }
 
 }
