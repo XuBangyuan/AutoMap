@@ -274,11 +274,11 @@ public class GetFilesUtils {
      * @return String 文件的类型
      **/
     public String getFileType(String fileName){
-        if(fileName!=""&&fileName.length()>3){
+        if(fileName != "" && fileName.length() > 3){
             int dot=fileName.lastIndexOf(".");
-            if(dot>0){
+            if( dot>0 ){
                 return fileName.substring(dot+1);
-            }else{
+            } else {
                 return "";
             }
         }
@@ -296,20 +296,20 @@ public class GetFilesUtils {
             @Override
             public int compare(Map<String, Object> lhs, Map<String, Object> rhs) {
                 // TODO Auto-generated method stub
-                int left0=lhs.get(orderBy0).equals(true)?0:1;
-                int right0=rhs.get(orderBy0).equals(true)?0:1;
-                if(left0==right0){
-                    String left1=lhs.get(orderBy1).toString();
-                    String right1=rhs.get(orderBy1).toString();
-                    if(left1.compareTo(right1)==0){
-                        String left2=lhs.get(orderBy2).toString();
-                        String right2=rhs.get(orderBy2).toString();
+                int left0 = lhs.get(orderBy0).equals(true) ? 0 : 1;
+                int right0 = rhs.get(orderBy0).equals(true) ? 0 : 1;
+                if( left0 == right0 ) {
+                    String left1 = lhs.get(orderBy1).toString();
+                    String right1 = rhs.get(orderBy1).toString();
+                    if( left1.compareTo(right1) == 0 ) {
+                        String left2 = lhs.get(orderBy2).toString();
+                        String right2 = rhs.get(orderBy2).toString();
                         return left2.compareTo(right2);
                     }else{
                         return left1.compareTo(right1);
                     }
                 }else{
-                    return left0-right0;
+                    return left0 - right0;
                 }
             }
         };

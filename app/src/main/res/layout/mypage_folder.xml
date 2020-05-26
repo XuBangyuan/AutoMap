@@ -3,16 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <TextView android:layout_width="match_parent"
+
+    <TextView
+        android:id="@+id/folder_now"
+        android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:gravity="center_vertical"
-        android:ellipsize="start"
-        android:singleLine="true"
-        android:paddingLeft="10dp"
         android:drawablePadding="10dp"
-        android:id="@+id/folder_now"/>
+        android:ellipsize="start"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:singleLine="true"
+        android:textColor="#000000"
+        android:textSize="16sp" />
     <ListView android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/folder_list"

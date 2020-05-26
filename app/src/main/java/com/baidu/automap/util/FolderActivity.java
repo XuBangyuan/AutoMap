@@ -1,6 +1,8 @@
 package com.baidu.automap.util;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,7 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -30,6 +37,8 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
 
     private TextView titleTv;
 
+    private static final String KEY = "folderActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
@@ -42,6 +51,9 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
 
         folderLv=(ListView) findViewById(R.id.folder_list);
         foldernowTv=(TextView) findViewById(R.id.folder_now);
+        Drawable folderBack = getResources().getDrawable(R.drawable.folder_back);
+        folderBack.setBounds(0, 0, 50, 50);
+        foldernowTv.setCompoundDrawables(folderBack, null, null, null);
         foldernowTv.setText(baseFile);
         foldernowTv.setOnClickListener(this);
         aList=new ArrayList<Map<String,Object>>();
@@ -62,20 +74,29 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
         if(list!=null){
             Collections.sort(list, GetFilesUtils.getInstance().defaultOrder());
             aList.clear();
-            for(Map<String, Object> map:list){
-                String fileType=(String) map.get(GetFilesUtils.FILE_INFO_TYPE);
-                Map<String,Object> gMap=new HashMap<String, Object>();
-                if(map.get(GetFilesUtils.FILE_INFO_ISFOLDER).equals(true)){
+            for( Map<String, Object> map:list ) {
+                String fileType = (String) map.get(GetFilesUtils.FILE_INFO_TYPE);
+                Map<String,Object> gMap = new HashMap<String, Object>();
+                if( map.get(GetFilesUtils.FILE_INFO_ISFOLDER ).equals(true)){
                     gMap.put("fIsDir", true);
-//                    gMap.put("fImg",R.drawable.filetype_folder );
+                    gMap.put("fImg", R.drawable.filetype_folder);
                     gMap.put("fInfo", map.get(GetFilesUtils.FILE_INFO_NUM_SONDIRS)+"个文件夹和"+
                             map.get(GetFilesUtils.FILE_INFO_NUM_SONFILES)+"个文件");
                 }else{
                     gMap.put("fIsDir", false);
-                    if(fileType.equals("txt")||fileType.equals("text")){
-//                        gMap.put("fImg", R.drawable.filetype_text);
+                    if(fileType.equals("img")||fileType.equals("png")){
+                        String path = (map.get(GetFilesUtils.FILE_INFO_PATH).toString());
+                        Bitmap img = null;
+                        try {
+                            img = getLocalBitmap(path);
+                            Log.e(KEY, "file path : " +  path);
+                        } catch (Exception e) {
+                            Log.e(KEY, e.toString());
+                        }
+                        BitmapDrawable bd = new BitmapDrawable(img);
+                        gMap.put("fImg", bd);
                     }else{
-//                        gMap.put("fImg", R.drawable.filetype_unknow);
+                        gMap.put("fImg", R.drawable.filetype_unknown);
                     }
                     gMap.put("fInfo","文件大小:"+GetFilesUtils.getInstance().getFileSize(map.get(GetFilesUtils.FILE_INFO_PATH).toString()));
                 }
@@ -88,6 +109,17 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
         }
         sAdapter.notifyDataSetChanged();
         foldernowTv.setText(file);
+    }
+
+    public Bitmap getLocalBitmap(String path) {
+
+        try{
+            FileInputStream in = new FileInputStream(path);
+            return BitmapFactory.decodeStream(in);
+        } catch (Exception e) {
+            Log.e(KEY, e.toString());
+            return null;
+        }
     }
 
     @Override
