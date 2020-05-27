@@ -15,9 +15,10 @@
         android:singleLine="true"
         android:textColor="#000000"
         android:textSize="16sp" />
-    <ListView android:layout_width="match_parent"
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/folder_list"
-        android:dividerHeight="1dp">
-    </ListView>
+        android:dividerHeight="1dp"/>
 </LinearLayout>
