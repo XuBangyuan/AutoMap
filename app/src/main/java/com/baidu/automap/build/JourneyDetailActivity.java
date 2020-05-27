@@ -1,13 +1,18 @@
 package com.baidu.automap.build;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,8 +24,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.baidu.automap.R;
 import com.baidu.automap.entity.Comment;
+import com.baidu.automap.entity.ImgEntity;
 import com.baidu.automap.entity.Journey;
 import com.baidu.automap.entity.response.CommentResponse;
+import com.baidu.automap.entity.response.ImgResponse;
+import com.baidu.automap.entity.response.ImgTran;
 import com.baidu.automap.entity.response.JourneyResponse;
 import com.baidu.automap.util.HttpUtil;
 
@@ -47,6 +55,7 @@ public class JourneyDetailActivity extends AppCompatActivity {
     private LinearLayout makeSureDelete;
     private Button sureDelete;
     private Button cancelDelete;
+    private RecyclerView imgList;
 
     private int curUserId;
     private Journey curJourney;
@@ -54,6 +63,8 @@ public class JourneyDetailActivity extends AppCompatActivity {
     private boolean isAdmin;
     private Comment curComment;
     private boolean isShow;
+    private ImgResponse mImgResponse;
+    private ImgAdapter mImgAdapter;
 
     private static final String KEY = "journeyDetailActivity";
 
@@ -83,6 +94,12 @@ public class JourneyDetailActivity extends AppCompatActivity {
         cancelDelete = (Button) findViewById(R.id.cancel_delete_comment);
         makeSureDelete.setVisibility(View.GONE);
         isShow = false;
+        imgList = (RecyclerView) findViewById(R.id.journey_img_list);
+        imgList.setLayoutManager(new LinearLayoutManager(JourneyDetailActivity.this));
+
+        mImgResponse = new ImgResponse();
+        mImgAdapter = new ImgAdapter(mImgResponse.getList());
+        imgList.setAdapter(mImgAdapter);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -101,6 +118,7 @@ public class JourneyDetailActivity extends AppCompatActivity {
         agree.setText("赞 ：" + curJourney.getAgree() + "");
 
         updateCommentList();
+        updateImg();
 
         //确认删除评论
         sureDelete.setOnClickListener(new View.OnClickListener() {
@@ -444,6 +462,33 @@ public class JourneyDetailActivity extends AppCompatActivity {
         commentList.setAdapter(commentAdapter);
     }
 
+    private class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
+
+        private List<Comment> list;
+
+        public CommentAdapter(List<Comment> list) {
+            this.list = list;
+        }
+
+        @Override
+        public CommentHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(JourneyDetailActivity.this);
+
+            return new CommentHolder(layoutInflater, parent);
+        }
+
+        @Override
+        public void onBindViewHolder(CommentHolder holder, int position) {
+            Comment comment = list.get(position);
+            holder.bind(comment);
+        }
+
+        @Override
+        public int getItemCount() {
+            return list.size();
+        }
+    }
+
     private class CommentHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
@@ -521,25 +566,24 @@ public class JourneyDetailActivity extends AppCompatActivity {
     }
 
 
-    private class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
+    private class ImgAdapter extends RecyclerView.Adapter<ImgHolder> {
 
-        private List<Comment> list;
+        private List<ImgTran> list;
 
-        public CommentAdapter(List<Comment> list) {
-            this.list = list;
+        public ImgAdapter(List<ImgTran> source) {
+            this.list = source;
         }
 
         @Override
-        public CommentHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ImgHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(JourneyDetailActivity.this);
 
-            return new CommentHolder(layoutInflater, parent);
+            return new ImgHolder(layoutInflater, parent);
         }
 
         @Override
-        public void onBindViewHolder(CommentHolder holder, int position) {
-            Comment comment = list.get(position);
-            holder.bind(comment);
+        public void onBindViewHolder(ImgHolder holder, int position) {
+            holder.bind(list.get(position));
         }
 
         @Override
@@ -547,5 +591,146 @@ public class JourneyDetailActivity extends AppCompatActivity {
             return list.size();
         }
     }
+
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+//            notifyUpdate();
+            if(msg.what == 1) {
+                Toast.makeText(JourneyDetailActivity.this, "正在加载图片，请稍等", Toast.LENGTH_SHORT).show();
+            } else {
+                mImgAdapter.notifyDataSetChanged();
+            }
+            Log.d(KEY, "get message");
+        }
+    };
+
+    public void updateImg() {
+        ImgEntity entity = new ImgEntity();
+        entity.setJourneyId(curJourney.getId());
+
+        ThreadUpdateImg thread = new ThreadUpdateImg(entity, "queryImgByCondition");
+        thread.start();
+    }
+
+    private class ThreadUpdateImg extends Thread {
+
+        private boolean isSuccess = false;
+
+        private ImgEntity mEntity;
+
+        private ImgAdapter mImgAdapter;
+
+        private String url;
+
+        public ThreadUpdateImg(ImgEntity entity, String url) {
+            this.mEntity = entity;
+            this.url = url;
+        }
+
+        public boolean getIsSuccess() {
+            return isSuccess;
+        }
+
+        @Override
+        public void run() {
+            try {
+
+                Message message = new Message();
+                message.what = 1;
+                mHandler.sendMessage(message);
+
+                byte[] data = HttpUtil.readImgParse(url, mEntity);
+                String str = new String(data);
+                JSONObject jsonObject = new JSONObject(str);
+                Log.d(KEY, jsonObject.toString());
+
+                mImgResponse.setMessage(jsonObject.getString("message"));
+                //response != null && response.getMessage().compareTo("success!") == 0
+                if(mImgResponse != null && mImgResponse.getMessage().compareTo("success!") == 0) {
+                    Log.d(KEY, url + " get data from server success!");
+                    isSuccess = true;
+                    JSONArray jsonArray =new JSONArray(jsonObject.getString("list"));
+
+                    mImgResponse.getList().clear();
+
+                    for(int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        ImgTran entity = new ImgTran();
+                        entity.setId(object.getInt("id"));
+                        entity.setData(object.getString("data"));
+                        entity.setJourneyId(object.getInt("journeyId"));
+                        entity.setName(object.getString("name"));
+
+                        mImgResponse.addEntity(entity);
+                    }
+
+                } else {
+                    isSuccess = false;
+                    Log.d(KEY, response.getMessage());
+                }
+                Log.d(KEY, str);
+            } catch (Exception e) {
+                Log.e(KEY, e.toString());
+            } finally {
+//                mImgAdapter.notifyDataSetChanged();
+//                notifyUpdate();
+                Message message = new Message();
+                message.what = 2;
+                mHandler.sendMessage(message);
+            }
+        }
+
+    }
+
+    private class ImgHolder extends RecyclerView.ViewHolder {
+
+        ImgEntity mEntity;
+
+        ImageView img;
+
+        public ImgHolder(LayoutInflater inflater, ViewGroup parent) {
+            super(inflater.inflate(R.layout.img_item_http, parent, false));
+
+            img = (ImageView) itemView.findViewById(R.id.img_item_http);
+        }
+
+        public void bind(ImgTran source) {
+            mEntity = new ImgEntity(source);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;//如此，无法decode bitmap
+            options.inSampleSize = calculateInSampleSize(options, 50, 50);
+            options.inJustDecodeBounds = false;//如此，方可decode bitmap
+            Bitmap bitmap = BitmapFactory.decodeByteArray(mEntity.getData(), 0, mEntity.getData().length, options);
+            img.setImageBitmap(bitmap);
+        }
+
+
+    }
+
+    /*
+     * 计算采样率
+     */
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+
+
 
 }

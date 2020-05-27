@@ -51,6 +51,11 @@
                 android:background="#223B6CFF"
                 android:text="游记内容" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/journey_img_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
         </LinearLayout>
 
         <LinearLayout
