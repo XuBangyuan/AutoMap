@@ -1,14 +1,17 @@
 package com.baidu.automap.util;
 
+import android.util.Base64;
 import android.util.Log;
 
 import com.baidu.automap.entity.Comment;
 import com.baidu.automap.entity.DesDetailIntroduction;
+import com.baidu.automap.entity.ImgEntity;
 import com.baidu.automap.entity.Journey;
 import com.baidu.automap.entity.Mp3Entity;
 import com.baidu.automap.entity.RouteNode;
 import com.baidu.automap.entity.User;
 import com.baidu.automap.entity.UserRoute;
+import com.baidu.automap.entity.response.ImgResponse;
 
 import org.json.JSONObject;
 
@@ -379,4 +382,119 @@ public class HttpUtil {
         return outStream.toByteArray();
 
     }
+
+    public static byte[] readImgParse(String urlPath, final ImgEntity entity) throws Exception {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+        final byte[] data = new byte[1024];
+
+        final URL url = new URL(urlPrefix + "img/" + urlPath);
+
+        int len = 0;
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        JSONObject json = new JSONObject();
+
+        if(entity != null) {
+            if(entity.getId() != null) {
+                json.put("id", entity.getId());
+            }
+            if(entity.getJourneyId() != null) {
+                json.put("journeyId", entity.getJourneyId());
+            }
+            if(entity.getName() != null) {
+                json.put("name", entity.getName());
+            }
+            if(entity.getData() != null) {
+                String dataStr = Base64.encodeToString(entity.getData(), Base64.DEFAULT);
+                json.put("data", dataStr);
+            }
+
+            Log.d(KEY, json.toString());
+
+        }
+
+        String content = String.valueOf(json);
+
+        conn.setConnectTimeout(5000);
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("User-Agent", "Fiddler");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Charset", "UTF-8");
+        OutputStream os = conn.getOutputStream();
+        os.write(content.getBytes());
+        os.close();
+
+        InputStream inStream = conn.getInputStream();
+
+        while ((len = inStream.read(data)) != -1) {
+
+            outStream.write(data, 0, len);
+
+        }
+
+        inStream.close();
+
+        return outStream.toByteArray();
+
+    }
+
+//    public static byte[] readImgListParse(String urlPath, final ImgResponse imgList) throws Exception {
+//        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+//
+//        final byte[] data = new byte[1024];
+//
+//        final URL url = new URL(urlPrefix + "img/" + urlPath);
+//
+//        int len = 0;
+//
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//        JSONObject json = new JSONObject();
+//
+//        if(entity != null) {
+//            if(entity.getId() != null) {
+//                json.put("id", entity.getId());
+//            }
+//            if(entity.getJourneyId() != null) {
+//                json.put("journeyId", entity.getJourneyId());
+//            }
+//            if(entity.getName() != null) {
+//                json.put("name", entity.getName());
+//            }
+//            if(entity.getData() != null) {
+//                json.put("data", new String(entity.getData()));
+//            }
+//
+//            Log.d(KEY, json.toString());
+//
+//        }
+//
+//        String content = String.valueOf(json);
+//
+//        conn.setConnectTimeout(5000);
+//        conn.setRequestMethod("POST");
+//        conn.setDoOutput(true);
+//        conn.setRequestProperty("User-Agent", "Fiddler");
+//        conn.setRequestProperty("Content-Type", "application/json");
+//        conn.setRequestProperty("Charset", "UTF-8");
+//        OutputStream os = conn.getOutputStream();
+//        os.write(content.getBytes());
+//        os.close();
+//
+//        InputStream inStream = conn.getInputStream();
+//
+//        while ((len = inStream.read(data)) != -1) {
+//
+//            outStream.write(data, 0, len);
+//
+//        }
+//
+//        inStream.close();
+//
+//        return outStream.toByteArray();
+//
+//    }
 }

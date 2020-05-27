@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,7 +25,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -34,6 +37,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.baidu.automap.R;
+import com.baidu.automap.entity.ImgEntity;
+import com.baidu.mapframework.commonlib.utils.IOUitls;
 
 public class FolderActivity extends Activity implements OnItemClickListener,OnClickListener {
 
@@ -42,6 +47,14 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
     private FileAdapter sAdapter;
     private List<Map<String, Object>> aList;
     private String baseFile;
+
+    LinearLayout makeSure;
+    Button sureImg;
+    Button cancelImg;
+
+    private String choiceImgPath;
+    private String choiceImgName;
+    private boolean isShow;
 
     private TextView titleTv;
 
@@ -59,6 +72,10 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
 
         folderLv=(RecyclerView) findViewById(R.id.folder_list);
         foldernowTv=(TextView) findViewById(R.id.folder_now);
+        makeSure = (LinearLayout) findViewById(R.id.make_sure_choice);
+        sureImg = (Button) findViewById(R.id.sure_choice_img);
+        cancelImg = (Button) findViewById(R.id.cancel_choice_img);
+        makeSure.setVisibility(View.GONE);
 //        Drawable folderBack = getResources().getDrawable(R.drawable.folder_back);
         Drawable folderBack = getResources().getDrawable(R.drawable.folder_back);
 
@@ -76,6 +93,42 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+
+//        choiceImg = new ImgEntity();
+
+        sureImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                Bundle bundle = new Bundle();
+                bundle.putString("path", choiceImgPath);
+                bundle.putString("name", choiceImgName);
+                intent.putExtras(bundle);
+                setResult(RESULT_OK, intent);
+//                Log.d(KEY, choiceImg.getName() + choiceImg.getData().length);
+                finish();
+            }
+        });
+
+        cancelImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeSure.setVisibility(View.GONE);
+                isShow = false;
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        if(isShow) {
+            makeSure.setVisibility(View.GONE);
+            isShow = true;
+        } else {
+            setResult(RESULT_CANCELED);
+            finish();
         }
     }
 
@@ -116,6 +169,7 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
 //                            Log.e(KEY, e.toString());
 //                        }
 //                        BitmapDrawable bd = new BitmapDrawable(img);
+                        gMap.put(GetFilesUtils.FILE_INFO_TYPE, fileType);
                         gMap.put("fImgBitmap", path);
                     }else{
                         Log.e(KEY, "drawableId " + R.drawable.filetype_folder );
@@ -239,6 +293,7 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
             mMap.put("fInfo", map.get("fInfo"));
             mMap.put("fIsDir", map.get("fIsDir"));
             mMap.put("fPath", map.get("fPath"));
+            mMap.put(GetFilesUtils.FILE_INFO_TYPE, map.get(GetFilesUtils.FILE_INFO_TYPE));
 
             Log.d(KEY, "mMap : " + mMap.toString());
 
@@ -275,10 +330,18 @@ public class FolderActivity extends Activity implements OnItemClickListener,OnCl
         public void onClick(View view) {
             Log.d("holder", "begin click");
 
+            String fileType = (String) mMap.get(GetFilesUtils.FILE_INFO_TYPE);
+
             try {
                 if(mMap.get("fIsDir").equals(true)){
                     loadFolderList(mMap.get("fPath").toString());
-                }else{
+                } else if (fileType.equals("jpg") || fileType.equals("png")) {
+                    File file = new File(mMap.get(GetFilesUtils.FILE_INFO_PATH).toString());
+                    choiceImgName = mMap.get(GetFilesUtils.FILE_INFO_NAME).toString();
+                    choiceImgPath = mMap.get(GetFilesUtils.FILE_INFO_PATH).toString();
+                    makeSure.setVisibility(View.VISIBLE);
+                    isShow = true;
+                } else {
                     Toast.makeText(FolderActivity.this, "这是文件，处理程序待添加", Toast.LENGTH_SHORT).show();
                 }
             } catch (IOException e) {
